@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <!-- Dark background -->
+  <rect width="300" height="300" fill="#121221" rx="20" ry="20" />
+  
+  <!-- Circuit board pattern background -->
+  <g stroke="#8a7bbd" stroke-width="0.5" opacity="0.3">
+    <path d="M30,30 L270,30 L270,270 L30,270 Z" fill="none" />
+    <path d="M60,60 L240,60 L240,240 L60,240 Z" fill="none" />
+    <path d="M30,30 L60,60 M270,30 L240,60 M30,270 L60,240 M270,270 L240,240" fill="none" />
+    
+    <!-- Circuit lines -->
+    <path d="M30,150 L60,150 M240,150 L270,150" fill="none" />
+    <path d="M150,30 L150,60 M150,240 L150,270" fill="none" />
+    <path d="M90,90 L120,90 M180,90 L210,90" fill="none" />
+    <path d="M90,210 L120,210 M180,210 L210,210" fill="none" />
+    <path d="M90,90 L90,120 M210,90 L210,120" fill="none" />
+    <path d="M90,180 L90,210 M210,180 L210,210" fill="none" />
+  </g>
+  
+  <!-- Glow effect -->
+  <circle cx="150" cy="150" r="100" fill="url(#glowGradient)" opacity="0.3">
+    <animate attributeName="opacity" values="0.2;0.4;0.2" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Center hexagon with gradient -->
+  <path d="M150,80 L210,115 L210,185 L150,220 L90,185 L90,115 Z" fill="url(#pastelGradient)" />
+  
+  <!-- AI letter styling - Futuristic A -->
+  <path d="M125,170 L140,120 L155,170 M130,155 L150,155" 
+        stroke="#121221" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  
+  <!-- AI letter styling - Futuristic I -->
+  <path d="M170,120 L170,170 M160,120 L180,120 M160,170 L180,170" 
+        stroke="#121221" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  
+  <!-- Pulses and data streams -->
+  <circle cx="65" cy="150" r="4" fill="#f7d1e4">
+    <animate attributeName="opacity" values="0.1;1;0.1" dur="2s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="235" cy="150" r="4" fill="#f7d1e4">
+    <animate attributeName="opacity" values="0.1;1;0.1" dur="2s" repeatCount="indefinite" delay="0.5s" />
+  </circle>
+  
+  <!-- Data stream animations -->
+  <circle cx="150" cy="65" r="4" fill="#c2f0e6">
+    <animate attributeName="opacity" values="0.1;1;0.1" dur="2s" repeatCount="indefinite" delay="1s" />
+  </circle>
+  <circle cx="150" cy="235" r="4" fill="#c2f0e6">
+    <animate attributeName="opacity" values="0.1;1;0.1" dur="2s" repeatCount="indefinite" delay="1.5s" />
+  </circle>
+  
+  <!-- AIKIRA Text -->
+  <text x="150" y="255" font-family="'Courier New', monospace" font-size="18" font-weight="bold" 
+        fill="#f7d1e4" text-anchor="middle">AIKIRA</text>
+  
+  <!-- Radar scan animation -->
+  <path d="M150,150 L210,115" stroke="#f7d1e4" stroke-width="2" opacity="0.6" stroke-linecap="round">
+    <animate attributeName="d" 
+             values="M150,150 L210,115; M150,150 L210,185; M150,150 L150,220; M150,150 L90,185; M150,150 L90,115; M150,150 L150,80; M150,150 L210,115" 
+             dur="3s" 
+             repeatCount="indefinite" />
+  </path>
+  
+  <!-- Gradient Definitions -->
+  <defs>
+    <linearGradient id="pastelGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f7d1e4" /> <!-- Pink -->
+      <stop offset="50%" stop-color="#d9c2f0" /> <!-- Purple -->
+      <stop offset="100%" stop-color="#c2f0e6" /> <!-- Turquoise -->
+    </linearGradient>
+    
+    <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#f7d1e4" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#121221" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+</svg>

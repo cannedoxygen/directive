@@ -1,0 +1,240 @@
+/* Aikira Proposal System - Main CSS */
+
+:root {
+    /* Pastel Color Palette */
+    --pastel-pink: #f7d1e4;
+    --pastel-purple: #d9c2f0;
+    --pastel-turquoise: #c2f0e6;
+    --pastel-blue: #c2d4f0;
+    --light-bg: #f9f7fc;
+    --dark-text: #4a4a68;
+    --light-text: #f9f7fc;
+    --border-color: #e0d8ee;
+    --shadow-color: rgba(185, 160, 220, 0.2);
+  }
+  
+  /* General Styles */
+  body {
+    font-family: 'Roboto', sans-serif;
+    color: var(--dark-text);
+    background-color: var(--light-bg);
+    line-height: 1.6;
+  }
+  
+  /* Proposal Button */
+  .proposal-button {
+    background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-turquoise));
+    color: var(--dark-text);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--shadow-color);
+  }
+  
+  .proposal-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px var(--shadow-color);
+  }
+  
+  /* Proposal System Container */
+  .proposal-system-container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    overflow: hidden;
+  }
+  
+  /* Terminal Input */
+  .terminal-container {
+    background-color: var(--dark-text);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .terminal-prompt {
+    color: var(--pastel-turquoise);
+    font-family: monospace;
+    font-size: 14px;
+  }
+  
+  .terminal-input {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid var(--pastel-purple);
+    color: var(--light-text);
+    font-family: monospace;
+    font-size: 16px;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    resize: none;
+  }
+  
+  .terminal-input:focus {
+    outline: none;
+    border-bottom-color: var(--pastel-pink);
+  }
+  
+  /* Tag Selector */
+  .tag-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  
+  .tag {
+    background-color: var(--pastel-blue);
+    color: var(--dark-text);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .tag:hover {
+    background-color: var(--pastel-purple);
+  }
+  
+  .tag.selected {
+    background-color: var(--pastel-pink);
+    font-weight: 600;
+  }
+  
+  /* Proposal Showcase */
+  .proposal-showcase {
+    padding: 24px;
+  }
+  
+  .proposal-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+  
+  .proposal-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+    padding: 16px;
+    transition: transform 0.3s ease;
+  }
+  
+  .proposal-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  
+  .proposal-tag {
+    background-color: var(--pastel-purple);
+    color: var(--dark-text);
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  
+  .submitter-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--dark-text);
+    opacity: 0.8;
+  }
+  
+  /* Status Indicator */
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 16px;
+  }
+  
+  .status-dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  
+  .status-dot.success {
+    background-color: #a3f0d0;
+  }
+  
+  .status-dot.error {
+    background-color: #f0a3a3;
+  }
+  
+  .status-dot.pending {
+    background-color: var(--pastel-blue);
+    animation: pulse 1.5s infinite;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(0.8);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0.8);
+      opacity: 0.5;
+    }
+  }
+  
+  /* Wallet Connection */
+  .wallet-container {
+    padding: 24px;
+    text-align: center;
+  }
+  
+  .connect-wallet-button {
+    background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple));
+    color: var(--dark-text);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .connect-wallet-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-color);
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .proposal-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .tag-selector {
+      justify-content: center;
+    }
+  }

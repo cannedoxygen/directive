@@ -1,0 +1,205 @@
+/* Aikira Terminal Input Styling */
+
+:root {
+    /* Pastel Colors - matching main.css */
+    --pastel-pink: #f7d1e4;
+    --pastel-purple: #d9c2f0;
+    --pastel-turquoise: #c2f0e6;
+    --pastel-blue: #c2d4f0;
+    --light-bg: #f9f7fc;
+    
+    /* Terminal-specific colors */
+    --terminal-bg: #1a1a2e;
+    --terminal-text: #f0f0f0;
+    --terminal-cursor: var(--pastel-turquoise);
+    --terminal-prompt: var(--pastel-pink);
+    --terminal-command: var(--pastel-purple);
+    --terminal-border: #2c2c44;
+    --terminal-shadow: rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Terminal Container */
+  .terminal-container {
+    background-color: var(--terminal-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px var(--terminal-shadow);
+    margin-bottom: 24px;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    color: var(--terminal-text);
+    border: 1px solid var(--terminal-border);
+    transition: all 0.3s ease;
+  }
+  
+  .terminal-container.focused {
+    box-shadow: 0 4px 20px rgba(216, 178, 235, 0.3);
+    border-color: var(--pastel-purple);
+  }
+  
+  /* Terminal Header */
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .terminal-controls {
+    display: flex;
+    gap: 6px;
+    margin-right: 12px;
+  }
+  
+  .terminal-control {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+  
+  .terminal-control.close {
+    background-color: #ff6b6b;
+  }
+  
+  .terminal-control.minimize {
+    background-color: #ffd93d;
+  }
+  
+  .terminal-control.maximize {
+    background-color: #6bff6b;
+  }
+  
+  .terminal-prompt {
+    color: var(--terminal-prompt);
+    font-size: 14px;
+    letter-spacing: 0.5px;
+  }
+  
+  .terminal-prompt::before {
+    content: "$ ";
+    color: var(--pastel-turquoise);
+  }
+  
+  /* Terminal Input */
+  .terminal-input {
+    width: 100%;
+    min-height: 120px;
+    max-height: 300px;
+    background-color: transparent;
+    border: none;
+    color: var(--terminal-text);
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    resize: vertical;
+    overflow-y: auto;
+    caret-color: var(--terminal-cursor);
+  }
+  
+  .terminal-input:focus {
+    outline: none;
+  }
+  
+  .terminal-input::placeholder {
+    color: rgba(240, 240, 240, 0.4);
+  }
+  
+  /* Blinking cursor animation when empty */
+  .terminal-input:empty::after {
+    content: '|';
+    color: var(--terminal-cursor);
+    animation: blink 1s step-end infinite;
+  }
+  
+  @keyframes blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  /* Terminal Footer */
+  .terminal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+  }
+  
+  .char-counter {
+    color: rgba(240, 240, 240, 0.7);
+  }
+  
+  .char-counter .limit-reached {
+    color: #ff6b6b;
+  }
+  
+  .terminal-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .ownership-note {
+    color: var(--pastel-pink);
+    font-size: 12px;
+  }
+  
+  .submit-button {
+    background-color: var(--pastel-turquoise);
+    color: var(--terminal-bg);
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .submit-button:hover {
+    background-color: var(--pastel-purple);
+    transform: translateY(-2px);
+  }
+  
+  .submit-button:disabled {
+    background-color: #3a3a4a;
+    color: #6c6c7c;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  /* Command Highlighting (for future enhancements) */
+  .terminal-input .command {
+    color: var(--terminal-command);
+  }
+  
+  .terminal-input .parameter {
+    color: var(--pastel-blue);
+  }
+  
+  .terminal-input .string {
+    color: var(--pastel-pink);
+  }
+  
+  /* Terminal Animation Effects */
+  .terminal-container {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .terminal-footer {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    
+    .terminal-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
