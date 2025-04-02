@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import PhantomConnect from './PhantomConnect';
-import TerminalInput from './TerminalInput';
-import TagSelector from './TagSelector';
-import StatusIndicator from './StatusIndicator';
-import ProposalShowcase from './ProposalShowcase';
-import usePhantomWallet from '../hooks/usePhantomWallet';
-import useTokenBalance from '../hooks/useTokenBalance';
-import { addProposal, getProposals } from '../db/localDb';
+import PhantomConnect from './PhantomConnect.jsx';
+import TerminalInput from './TerminalInput.jsx';
+import TagSelector from './TagSelector.jsx';
+import StatusIndicator from './StatusIndicator.jsx';
+import ProposalShowcase from './ProposalShowcase.jsx';
+import usePhantomWallet from '../hooks/usePhantomWallet.js';
+import useTokenBalance from '../hooks/useTokenBalance.js';
+import { addProposal, getProposals } from '../db/localDb.js';
+
+// Aikira token configuration - replace with your actual token address
+const AIKIRA_TOKEN_ADDRESS = '0x1234567890123456789012345678901234567890';
+const REQUIRED_TOKEN_AMOUNT = 100; // Minimum tokens required to submit proposals
 
 /**
  * Main component that orchestrates the proposal submission system
@@ -29,10 +33,11 @@ const ProposalSystem = () => {
     isPhantomInstalled
   } = usePhantomWallet();
   
+  // Use the token balance hook with the configured address
   const tokenInfo = useTokenBalance(
     address,
-    '0xYourAikiraTokenAddressHere', // Replace with actual token address
-    10000 // Required token amount
+    AIKIRA_TOKEN_ADDRESS,
+    REQUIRED_TOKEN_AMOUNT
   );
   
   // Load proposals on mount
@@ -143,7 +148,7 @@ const ProposalSystem = () => {
       return (
         <div className="tokens-required">
           <h2>$AIKIRA Tokens Required</h2>
-          <p>You need at least {tokenInfo.requiredBalance} $AIKIRA tokens to submit proposals.</p>
+          <p>You need at least {REQUIRED_TOKEN_AMOUNT} $AIKIRA tokens to submit proposals.</p>
           <p>Current balance: {tokenInfo.formattedBalance} {tokenInfo.symbol}</p>
           
           <div className="token-actions">

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import { Contract, BrowserProvider, formatUnits } from 'ethers';
 
 // Simplified ERC20 ABI with just the functions we need
 const ERC20_ABI = [
@@ -17,8 +17,8 @@ const ERC20_ABI = [
  */
 const useTokenBalance = (
   walletAddress, 
-  tokenAddress = '0xYourAikiraTokenAddressHere', // Replace with actual Aikira token address
-  requiredAmount = 100 // Minimum tokens required
+  tokenAddress = '0xa884C16a93792D1E0156fF4C8A3B2C59b8d04C9A', // Replace with actual Aikira token address
+  requiredAmount = 10000 // Minimum tokens required
 ) => {
   const [tokenInfo, setTokenInfo] = useState({
     balance: 0,
@@ -49,10 +49,10 @@ const useTokenBalance = (
       
       try {
         // Connect to provider using window.ethereum
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new BrowserProvider(window.ethereum);
         
         // Create contract instance
-        const tokenContract = new ethers.Contract(
+        const tokenContract = new Contract(
           tokenAddress,
           ERC20_ABI,
           provider
@@ -68,7 +68,7 @@ const useTokenBalance = (
         const balance = await tokenContract.balanceOf(walletAddress);
         
         // Format balance with proper decimals
-        const formattedBalance = ethers.utils.formatUnits(balance, decimals);
+        const formattedBalance = formatUnits(balance, decimals);
         
         // Check if user has enough tokens
         const hasEnoughTokens = parseFloat(formattedBalance) >= requiredAmount;

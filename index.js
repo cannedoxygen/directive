@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ProposalSystem from './components/ProposalSystem';
-import ProposalButton from './components/ProposalButton';
+import ProposalSystem from './components/ProposalSystem.jsx';
+import ProposalButton from './components/ProposalButton.jsx';
+
+// Import CSS after installing the CSS loaders
 import './assets/styles/main.css';
+import './assets/styles/terminal.css';
 
 /**
  * Initialize the Aikira Proposal System
