@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import ProposalSystem from './components/ProposalSystem.jsx';
 import ProposalButton from './components/ProposalButton.jsx';
 
-// Import CSS after installing the CSS loaders
+// Import CSS files
 import './assets/styles/main.css';
 import './assets/styles/terminal.css';
 
