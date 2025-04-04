@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+const React = require('react');
+const { useState } = React;
 
 /**
  * Button component that opens the Aikira proposal system
@@ -10,15 +11,18 @@ const ProposalButton = ({ onClick, text = 'Submit Proposal' }) => {
   const [isHovered, setIsHovered] = useState(false);
   
   return (
-    <button 
-      className={`proposal-button ${isHovered ? 'hovered' : ''}`}
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {text}
-    </button>
+    React.createElement(
+      'button',
+      { 
+        className: `proposal-button ${isHovered ? 'hovered' : ''}`,
+        onClick: onClick,
+        onMouseEnter: () => setIsHovered(true),
+        onMouseLeave: () => setIsHovered(false)
+      },
+      text
+    )
   );
 };
 
-export default ProposalButton;
+// Use CommonJS export
+module.exports = ProposalButton;

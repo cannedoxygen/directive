@@ -1,8 +1,11 @@
-// webpack.config.js
-export default {
-  entry: "./index.js",
+const path = require('path');
+
+module.exports = {
+  mode: 'development',
+  entry: './bootstrap.js',
   output: {
-    filename: "bundle.js",
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, './'),
   },
   module: {
     rules: [
@@ -10,17 +13,19 @@ export default {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader"
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-react']
+          }
         }
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"]
+        use: ['style-loader', 'css-loader']
       }
     ]
   },
   resolve: {
-    extensions: [".js", ".jsx"]
-  },
-  mode: "development"
+    extensions: ['.js', '.jsx']
+  }
 };

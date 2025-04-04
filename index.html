@@ -4,69 +4,75 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aikira Proposal System</title>
-  <link rel="stylesheet" href="./assets/styles/main.css">
-  <link rel="stylesheet" href="./assets/styles/terminal.css">
+  <!-- Favicon with Aikira logo -->
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMDAgMzAwIj48cmVjdCB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgZmlsbD0iIzEyMTIyMSIgcng9IjIwIiByeT0iMjAiLz48cGF0aCBkPSJNMTUwLDgwIEwyMTAsMTE1IEwyMTAsMTg1IEwxNTAsMjIwIEw5MCwxODUgTDkwLDExNSBaIiBmaWxsPSIjZDljMmYwIi8+PC9zdmc+" type="image/svg+xml">
+  
+  <!-- Load Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- App Styles -->
   <style>
-    /* Inline styles in case the CSS files don't load */
-    .proposal-button {
-      background: linear-gradient(135deg, #d9c2f0, #c2f0e6);
-      color: #4a4a68;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 25px;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(185, 160, 220, 0.2);
-      margin: 20px 0;
-    }
-    
-    .proposal-button:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 20px rgba(185, 160, 220, 0.3);
-    }
-    
-    .proposal-system {
-      padding: 20px;
-      background-color: white;
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(185, 160, 220, 0.2);
-      margin-top: 20px;
-    }
-    
-    .tag-selector {
+    /* Initial loader styles */
+    .app-loader {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 24px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      text-align: center;
     }
     
-    .tag {
-      background-color: #c2d4f0;
-      color: #4a4a68;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .tag.selected {
-      background-color: #f7d1e4;
-      font-weight: 600;
-    }
-    
-    .terminal-input {
-      width: 100%;
-      min-height: 100px;
-      background-color: #1a1a2e;
-      color: #f0f0f0;
-      border: none;
-      border-radius: 8px;
-      padding: 12px;
-      font-family: monospace;
+    .loader-spinner {
+      border: 4px solid rgba(217, 194, 240, 0.3);
+      border-radius: 50%;
+      border-top: 4px solid #d9c2f0;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
       margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Debug panel */
+    .debug-panel {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 12px;
+      max-width: 300px;
+      max-height: 200px;
+      overflow: auto;
+      z-index: 9999;
+      border-top-left-radius: 5px;
+      display: none; /* Hidden by default */
+    }
+    
+    .debug-panel.visible {
+      display: block;
+    }
+    
+    .debug-toggle {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #d9c2f0;
+      color: #121221;
+      border: none;
+      border-radius: 5px;
+      padding: 5px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 10000;
     }
   </style>
 </head>
@@ -74,126 +80,71 @@
   <div style="padding: 20px;">
     <h1>Aikira Proposal System</h1>
     
-    <div id="aikira-proposal-button"></div>
-    <div style="margin-top: 40px;" id="aikira-proposal-system" style="display: none;"></div>
+    <!-- Button container with loader -->
+    <div id="aikira-proposal-button">
+      <div class="app-loader">
+        <div class="loader-spinner"></div>
+        <p>Loading AIKIRA...</p>
+      </div>
+    </div>
+    
+    <!-- System container with loader -->
+    <div style="margin-top: 40px;" id="aikira-proposal-system">
+      <div class="app-loader">
+        <div class="loader-spinner"></div>
+        <p>Loading proposal system...</p>
+      </div>
+    </div>
   </div>
   
-  <!-- React 18 -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- Debug Panel -->
+  <button class="debug-toggle" onclick="toggleDebug()">Debug</button>
+  <div class="debug-panel" id="debug-panel"></div>
   
+  <!-- Debug Utilities -->
   <script>
-    // Create React elements
-    const e = React.createElement;
+    // Debug panel functions
+    function toggleDebug() {
+      const panel = document.getElementById('debug-panel');
+      panel.classList.toggle('visible');
+    }
     
-    // Tag Selector Component
-    const TagSelector = (props) => {
-      const tags = ['Grants', 'Rewards', 'Trading', 'Marketing', 'Other'];
+    function logDebug(message) {
+      const panel = document.getElementById('debug-panel');
+      const entry = document.createElement('div');
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      panel.appendChild(entry);
       
-      return e('div', { className: 'tag-selector' },
-        e('div', { className: 'tag-selector-label' }, 'Select a category:'),
-        e('div', { className: 'tag-options' },
-          tags.map(tag => 
-            e('button', {
-              key: tag,
-              className: `tag ${props.selectedTag === tag ? 'selected' : ''}`,
-              onClick: () => props.onSelectTag(tag),
-              type: 'button'
-            }, tag)
-          )
-        )
-      );
-    };
+      // Auto-scroll to bottom
+      panel.scrollTop = panel.scrollHeight;
+      console.log(message); // Also log to console
+    }
     
-    // Terminal Input Component
-    const TerminalInput = (props) => {
-      return e('div', { className: 'terminal-container' },
-        e('textarea', {
-          className: 'terminal-input',
-          value: props.value,
-          onChange: (event) => props.onChange(event.target.value),
-          placeholder: 'Type your proposal here...',
-          rows: 4
-        })
-      );
-    };
+    // Log initial page load
+    window.addEventListener('DOMContentLoaded', () => {
+      logDebug('DOM loaded');
+    });
     
-    // Proposal System Component
-    const ProposalSystem = () => {
-      const [proposalText, setProposalText] = React.useState('');
-      const [selectedTag, setSelectedTag] = React.useState('');
-      
-      const handleSubmit = () => {
-        if (proposalText.trim() && selectedTag) {
-          alert(`Proposal submitted!\nTag: ${selectedTag}\nText: ${proposalText}`);
-          setProposalText('');
-          setSelectedTag('');
-        } else {
-          alert('Please select a tag and enter your proposal text.');
-        }
-      };
-      
-      return e('div', { className: 'proposal-system' },
-        e('h2', null, 'Submit Your Proposal'),
-        e(TagSelector, { 
-          selectedTag: selectedTag,
-          onSelectTag: setSelectedTag
-        }),
-        e(TerminalInput, {
-          value: proposalText,
-          onChange: setProposalText
-        }),
-        e('button', {
-          className: 'proposal-button',
-          onClick: handleSubmit,
-          disabled: !proposalText.trim() || !selectedTag
-        }, 'Submit Proposal'),
-        e('div', { className: 'aikira-flavor-text', style: { marginTop: '20px', fontStyle: 'italic' } },
-          e('p', null, '"I do not promise approval. I promise consideration."')
-        )
-      );
-    };
+    // Log script loading events
+    function logScriptLoad(name) {
+      logDebug(`${name} loaded`);
+    }
     
-    // Proposal Button Component
-    const ProposalButton = () => {
-      const toggleProposalSystem = () => {
-        const systemElement = document.getElementById('aikira-proposal-system');
-        if (systemElement) {
-          const isCurrentlyHidden = systemElement.style.display === 'none';
-          systemElement.style.display = isCurrentlyHidden ? 'block' : 'none';
-          
-          if (isCurrentlyHidden) {
-            systemElement.scrollIntoView({ behavior: 'smooth' });
-          }
-        }
-      };
-      
-      return e('button', {
-        className: 'proposal-button',
-        onClick: toggleProposalSystem
-      }, 'Submit Proposal');
-    };
-    
-    // Render the components when DOM is loaded
-    document.addEventListener('DOMContentLoaded', () => {
-      // Render the button
-      const buttonElement = document.getElementById('aikira-proposal-button');
-      if (buttonElement) {
-        ReactDOM.render(
-          e(ProposalButton, null),
-          buttonElement
-        );
-      }
-      
-      // Render the proposal system
-      const systemElement = document.getElementById('aikira-proposal-system');
-      if (systemElement) {
-        ReactDOM.render(
-          e(ProposalSystem, null),
-          systemElement
-        );
-      }
+    // Log errors
+    window.addEventListener('error', (event) => {
+      logDebug(`ERROR: ${event.message} at ${event.filename}:${event.lineno}`);
     });
   </script>
+  
+  <!-- React Dependencies -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" onload="logScriptLoad('React')"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" onload="logScriptLoad('ReactDOM')"></script>
+  <script src="https://unpkg.com/ethers@6.13.5/dist/ethers.umd.min.js" onload="logScriptLoad('Ethers.js')"></script>
+  
+  <!-- Wallet Integration -->
+  <script src="./wallet.js" onload="logScriptLoad('Wallet Integration')"></script>
+  
+  <!-- App Bundle - Loaded with defer to ensure dependencies are loaded first -->
+  <script src="./bundle.js" defer onload="logScriptLoad('Aikira bundle')"></script>
 </body>
 </html>

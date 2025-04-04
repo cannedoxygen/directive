@@ -1,0 +1,177 @@
+/* Scroll Animations for Proposal Cards */
+
+/* Base styles for scroll animation */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* When card becomes visible */
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered animations for a wave effect */
+.proposal-grid .animate-on-scroll:nth-child(1) { transition-delay: 0.05s; }
+.proposal-grid .animate-on-scroll:nth-child(2) { transition-delay: 0.1s; }
+.proposal-grid .animate-on-scroll:nth-child(3) { transition-delay: 0.15s; }
+.proposal-grid .animate-on-scroll:nth-child(4) { transition-delay: 0.2s; }
+.proposal-grid .animate-on-scroll:nth-child(5) { transition-delay: 0.25s; }
+.proposal-grid .animate-on-scroll:nth-child(6) { transition-delay: 0.3s; }
+.proposal-grid .animate-on-scroll:nth-child(7) { transition-delay: 0.35s; }
+.proposal-grid .animate-on-scroll:nth-child(8) { transition-delay: 0.4s; }
+.proposal-grid .animate-on-scroll:nth-child(9) { transition-delay: 0.45s; }
+.proposal-grid .animate-on-scroll:nth-child(10) { transition-delay: 0.5s; }
+
+/* Enhanced glow effects with larger radius on focus */
+.proposal-card:focus-within::before {
+  opacity: 0.5;
+  filter: blur(25px);
+}
+
+/* Card interactive states */
+.proposal-card {
+  cursor: pointer;
+}
+
+.proposal-card:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
+}
+
+/* Improved card content layout */
+.proposal-content {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Enhanced card shadows */
+.proposal-card {
+  box-shadow: 
+    0 5px 15px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.proposal-card:hover {
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.08),
+    0 5px 10px rgba(0, 0, 0, 0.04);
+}
+
+/* Alternative glow effects by status */
+.proposal-card.pending:hover::before {
+  background: radial-gradient(
+    circle at 50% 50%, 
+    var(--pastel-blue) 0%, 
+    transparent 70%
+  );
+  animation: pulse-glow 2s infinite alternate;
+}
+
+.proposal-card.approved:hover::before {
+  background: radial-gradient(
+    circle at 50% 50%, 
+    var(--pastel-turquoise) 0%, 
+    transparent 70%
+  );
+  animation: pulse-glow 2s infinite alternate;
+}
+
+.proposal-card.rejected:hover::before {
+  background: radial-gradient(
+    circle at 50% 50%, 
+    var(--pastel-pink) 0%, 
+    transparent 70%
+  );
+  animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% {
+    opacity: 0.3;
+    filter: blur(15px);
+  }
+  100% {
+    opacity: 0.5;
+    filter: blur(20px);
+  }
+}
+
+/* Enhanced vote buttons with micro-interactions */
+.vote-button {
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.vote-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--pastel-purple);
+  opacity: 0;
+  border-radius: 20px;
+  transform: scale(0);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: -1;
+}
+
+.vote-button:hover::before {
+  opacity: 0.1;
+  transform: scale(1);
+}
+
+.vote-button.upvote.active::before {
+  background: var(--pastel-turquoise);
+  opacity: 0.2;
+  transform: scale(1);
+}
+
+.vote-button.downvote.active::before {
+  background: var(--pastel-pink);
+  opacity: 0.2;
+  transform: scale(1);
+}
+
+/* Vote icons scale on hover */
+.vote-icon {
+  transition: transform 0.2s ease;
+}
+
+.vote-button:hover .vote-icon {
+  transform: scale(1.2);
+}
+
+/* Vote count animation enhancement */
+@keyframes vote-count-change {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.vote-count.changed {
+  animation: vote-count-change 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Mobile optimizations for voting UI */
+@media (max-width: 768px) {
+  .proposal-voting {
+    gap: 20px;
+    padding: 10px 0;
+  }
+  
+  .vote-button {
+    padding: 8px 12px;
+  }
+  
+  .vote-icon {
+    font-size: 16px;
+  }
+}
