@@ -1,35 +1,23 @@
-import React from 'react';
+const React = require('react');
 
-/**
- * Component for selecting proposal category tags
- * @param {Object} props - Component props
- * @param {string} props.selectedTag - Currently selected tag
- * @param {Function} props.onSelectTag - Function called when a tag is selected
- * @param {Array} props.tags - Array of available tags (optional)
- */
-const TagSelector = ({ 
+function TagSelector({ 
   selectedTag, 
   onSelectTag,
   tags = ['Grants', 'Rewards', 'Trading', 'Marketing', 'Other']
-}) => {
-  return (
-    <div className="tag-selector">
-      <div className="tag-selector-label">Select a category:</div>
-      
-      <div className="tag-options">
-        {tags.map((tag) => (
-          <button
-            key={tag}
-            className={`tag ${selectedTag === tag ? 'selected' : ''}`}
-            onClick={() => onSelectTag(tag)}
-            type="button"
-          >
-            {tag}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
+}) {
+  return React.createElement('div', { className: 'tag-selector' }, [
+    React.createElement('div', { key: 'label', className: 'tag-selector-label' }, 'Select a category:'),
+    React.createElement('div', { key: 'options', className: 'tag-options' }, 
+      tags.map(tag => 
+        React.createElement('button', {
+          key: tag,
+          className: `tag ${selectedTag === tag ? 'selected' : ''}`,
+          onClick: () => onSelectTag(tag),
+          type: 'button'
+        }, tag)
+      )
+    )
+  ]);
+}
 
-export default TagSelector;
+module.exports = TagSelector;

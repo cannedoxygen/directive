@@ -3,7 +3,14 @@
  * Handles storing and retrieving proposals
  */
 
-import { v4 as uuidv4 } from 'uuid';
+// Simple UUID generation that works in all browsers
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 
 // Database name in localStorage
 const DB_KEY = 'aikira_proposals_db';
@@ -12,7 +19,7 @@ const DB_KEY = 'aikira_proposals_db';
  * Initialize the database
  * @returns {boolean} Success status
  */
-export const initializeDb = () => {
+function initializeDb() {
   try {
     // Check if DB exists already
     const existingDb = localStorage.getItem(DB_KEY);
@@ -32,13 +39,13 @@ export const initializeDb = () => {
     console.error('Failed to initialize database:', error);
     return false;
   }
-};
+}
 
 /**
  * Get the entire database
  * @returns {Object|null} Database object or null if error
  */
-export const getDb = () => {
+function getDb() {
   try {
     const dbString = localStorage.getItem(DB_KEY);
     return dbString ? JSON.parse(dbString) : null;
@@ -46,14 +53,14 @@ export const getDb = () => {
     console.error('Failed to get database:', error);
     return null;
   }
-};
+}
 
 /**
  * Save the database
  * @param {Object} db - Database object
  * @returns {boolean} Success status
  */
-export const saveDb = (db) => {
+function saveDb(db) {
   try {
     db.lastUpdated = new Date().toISOString();
     localStorage.setItem(DB_KEY, JSON.stringify(db));
@@ -62,23 +69,23 @@ export const saveDb = (db) => {
     console.error('Failed to save database:', error);
     return false;
   }
-};
+}
 
 /**
  * Get all proposals
  * @returns {Array} Array of proposal objects
  */
-export const getProposals = () => {
+function getProposals() {
   const db = getDb();
   return db ? db.proposals : [];
-};
+}
 
 /**
  * Get proposals filtered by tag
  * @param {string} tag - Tag to filter by
  * @returns {Array} Filtered array of proposal objects
  */
-export const getProposalsByTag = (tag) => {
+function getProposalsByTag(tag) {
   const proposals = getProposals();
   
   if (!tag || tag.toLowerCase() === 'all') {
@@ -88,23 +95,26 @@ export const getProposalsByTag = (tag) => {
   return proposals.filter(proposal => 
     proposal.tag && proposal.tag.toLowerCase() === tag.toLowerCase()
   );
-};
+}
 
 /**
  * Add a new proposal
  * @param {Object} proposal - Proposal data
  * @returns {string|null} New proposal ID or null if error
  */
-export const addProposal = (proposal) => {
+function addProposal(proposal) {
   try {
     const db = getDb();
     if (!db) return null;
     
     // Create new proposal with ID and timestamp
     const newProposal = {
-      id: uuidv4(),
+      id: generateUUID(),
       timestamp: new Date().toISOString(),
       status: 'pending',
+      upvotes: 0,
+      downvotes: 0,
+      votes: {},
       ...proposal
     };
     
@@ -117,7 +127,7 @@ export const addProposal = (proposal) => {
     console.error('Failed to add proposal:', error);
     return null;
   }
-};
+}
 
 /**
  * Update a proposal
@@ -125,7 +135,7 @@ export const addProposal = (proposal) => {
  * @param {Object} updates - Fields to update
  * @returns {boolean} Success status
  */
-export const updateProposal = (id, updates) => {
+function updateProposal(id, updates) {
   try {
     const db = getDb();
     if (!db) return false;
@@ -146,14 +156,14 @@ export const updateProposal = (id, updates) => {
     console.error('Failed to update proposal:', error);
     return false;
   }
-};
+}
 
 /**
  * Delete a proposal
  * @param {string} id - Proposal ID
  * @returns {boolean} Success status
  */
-export const deleteProposal = (id) => {
+function deleteProposal(id) {
   try {
     const db = getDb();
     if (!db) return false;
@@ -172,13 +182,13 @@ export const deleteProposal = (id) => {
     console.error('Failed to delete proposal:', error);
     return false;
   }
-};
+}
 
 /**
  * Export database to JSON file
  * @returns {boolean} Success status
  */
-export const exportDb = () => {
+function exportDb() {
   try {
     const db = getDb();
     if (!db) return false;
@@ -198,14 +208,14 @@ export const exportDb = () => {
     console.error('Failed to export database:', error);
     return false;
   }
-};
+}
 
 /**
  * Import database from JSON string
  * @param {string} jsonData - JSON data to import
  * @returns {boolean} Success status
  */
-export const importDb = (jsonData) => {
+function importDb(jsonData) {
   try {
     const importedDb = JSON.parse(jsonData);
     
@@ -225,7 +235,105 @@ export const importDb = (jsonData) => {
     console.error('Failed to import database:', error);
     return false;
   }
-};
+}
+
+/**
+ * Record a vote on a proposal
+ * @param {string} id - Proposal ID
+ * @param {string} userId - User ID
+ * @param {string|null} voteType - 'up', 'down', or null to remove vote
+ * @returns {boolean} Success status
+ */
+function voteOnProposal(id, userId, voteType) {
+  try {
+    const db = getDb();
+    if (!db) return false;
+    
+    const index = db.proposals.findIndex(p => p.id === id);
+    if (index === -1) return false;
+    
+    const proposal = db.proposals[index];
+    
+    // Initialize voting properties if they don't exist
+    if (!proposal.upvotes) proposal.upvotes = 0;
+    if (!proposal.downvotes) proposal.downvotes = 0;
+    if (!proposal.votes) proposal.votes = {};
+    
+    // Check if user has already voted
+    const previousVote = proposal.votes[userId];
+    
+    // Remove previous vote if exists
+    if (previousVote) {
+      if (previousVote === 'up') {
+        proposal.upvotes = Math.max(0, proposal.upvotes - 1);
+      } else {
+        proposal.downvotes = Math.max(0, proposal.downvotes - 1);
+      }
+    }
+    
+    // Add new vote if not removing vote
+    if (voteType !== null) {
+      // Add new vote
+      if (voteType === 'up') {
+        proposal.upvotes += 1;
+      } else {
+        proposal.downvotes += 1;
+      }
+      
+      // Store user's vote
+      proposal.votes[userId] = voteType;
+    } else {
+      // Clear user's vote
+      delete proposal.votes[userId];
+    }
+    
+    // Update proposal
+    db.proposals[index] = proposal;
+    saveDb(db);
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to vote on proposal:', error);
+    return false;
+  }
+}
+
+/**
+ * Get user's vote on a proposal
+ * @param {string} id - Proposal ID
+ * @param {string} userId - User ID
+ * @returns {string|null} Vote type or null if no vote
+ */
+function getUserVote(id, userId) {
+  try {
+    const db = getDb();
+    if (!db) return null;
+    
+    const proposal = db.proposals.find(p => p.id === id);
+    if (!proposal || !proposal.votes) return null;
+    
+    return proposal.votes[userId] || null;
+  } catch (error) {
+    console.error('Failed to get user vote:', error);
+    return null;
+  }
+}
 
 // Initialize the database when this module is imported
 initializeDb();
+
+// Export functions using CommonJS
+module.exports = {
+  initializeDb,
+  getDb,
+  saveDb,
+  getProposals,
+  getProposalsByTag,
+  addProposal,
+  updateProposal,
+  deleteProposal,
+  exportDb,
+  importDb,
+  voteOnProposal,
+  getUserVote
+};

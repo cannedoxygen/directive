@@ -1,6 +1,5 @@
-// Enhanced ProposalCard with animations and voting functionality
-const React = require('react');
-const { useState, useEffect } = React;
+import React, { useState, useEffect } from 'react';
+import { updateProposal } from '../db/localDb';
 
 /**
  * Enhanced proposal card component with animations and voting
@@ -102,100 +101,60 @@ const ProposalCard = ({ proposal, onVote }) => {
     }
   };
   
-  return React.createElement('div', { 
-    className: `proposal-card ${proposal.status || 'pending'}`
-  }, [
-    // Card Header
-    React.createElement('div', { key: 'header', className: 'card-header' }, [
-      React.createElement('span', { 
-        key: 'tag', 
-        className: 'proposal-tag' 
-      }, proposal.tag),
-      React.createElement('span', { 
-        key: 'date', 
-        className: 'submission-date' 
-      }, formatDate(proposal.timestamp))
-    ]),
-    
-    // Proposal Content
-    React.createElement('div', { 
-      key: 'content', 
-      className: 'proposal-content' 
-    }, [
-      React.createElement('p', {}, truncateText(proposal.proposal))
-    ]),
-    
-    // Card Footer
-    React.createElement('div', { 
-      key: 'footer', 
-      className: 'card-footer' 
-    }, [
-      React.createElement('div', { 
-        key: 'submitter', 
-        className: 'submitter-info' 
-      }, [
-        React.createElement('span', { 
-          key: 'icon', 
-          className: 'wallet-icon' 
-        }, '💳'),
-        React.createElement('span', { 
-          key: 'address', 
-          className: 'wallet-address' 
-        }, formatWalletAddress(proposal.walletAddress))
-      ]),
-      React.createElement('div', { 
-        key: 'status', 
-        className: `proposal-status ${proposal.status || 'pending'}` 
-      }, getStatusText(proposal.status))
-    ]),
-    
-    // Voting Section
-    React.createElement('div', { 
-      key: 'voting', 
-      className: 'proposal-voting' 
-    }, [
-      // Upvote button
-      React.createElement('button', {
-        key: 'upvote',
-        className: `vote-button upvote ${userVote === 'up' ? 'active' : ''}`,
-        onClick: () => handleVote('up'),
-        disabled: proposal.status !== 'pending',
-        'aria-label': 'Upvote'
-      }, [
-        React.createElement('span', { 
-          key: 'icon', 
-          className: 'vote-icon' 
-        }, '👍'),
-        React.createElement('span', {
-          key: 'count',
-          className: `vote-count ${isAnimating && userVote === 'up' ? 'changed' : ''}`
-        }, upvotes)
-      ]),
+  return (
+    <div className={`proposal-card ${proposal.status || 'pending'}`}>
+      {/* Card Header */}
+      <div className="card-header">
+        <span className="proposal-tag">{proposal.tag}</span>
+        <span className="submission-date">{formatDate(proposal.timestamp)}</span>
+      </div>
       
-      // Downvote button
-      React.createElement('button', {
-        key: 'downvote',
-        className: `vote-button downvote ${userVote === 'down' ? 'active' : ''}`,
-        onClick: () => handleVote('down'),
-        disabled: proposal.status !== 'pending',
-        'aria-label': 'Downvote'
-      }, [
-        React.createElement('span', { 
-          key: 'icon', 
-          className: 'vote-icon' 
-        }, '👎'),
-        React.createElement('span', {
-          key: 'count',
-          className: `vote-count ${isAnimating && userVote === 'down' ? 'changed' : ''}`
-        }, downvotes)
-      ])
-    ])
-  ]);
+      {/* Proposal Content */}
+      <div className="proposal-content">
+        <p>{truncateText(proposal.proposal)}</p>
+      </div>
+      
+      {/* Card Footer */}
+      <div className="card-footer">
+        <div className="submitter-info">
+          <span className="wallet-icon">💳</span>
+          <span className="wallet-address">{formatWalletAddress(proposal.walletAddress)}</span>
+        </div>
+        <div className={`proposal-status ${proposal.status || 'pending'}`}>
+          {getStatusText(proposal.status)}
+        </div>
+      </div>
+      
+      {/* Voting Section */}
+      <div className="proposal-voting">
+        {/* Upvote button */}
+        <button
+          className={`vote-button upvote ${userVote === 'up' ? 'active' : ''}`}
+          onClick={() => handleVote('up')}
+          disabled={proposal.status !== 'pending'}
+          aria-label="Upvote"
+        >
+          <span className="vote-icon">👍</span>
+          <span className={`vote-count ${isAnimating && userVote === 'up' ? 'changed' : ''}`}>
+            {upvotes}
+          </span>
+        </button>
+        
+        {/* Downvote button */}
+        <button
+          className={`vote-button downvote ${userVote === 'down' ? 'active' : ''}`}
+          onClick={() => handleVote('down')}
+          disabled={proposal.status !== 'pending'}
+          aria-label="Downvote"
+        >
+          <span className="vote-icon">👎</span>
+          <span className={`vote-count ${isAnimating && userVote === 'down' ? 'changed' : ''}`}>
+            {downvotes}
+          </span>
+        </button>
+      </div>
+    </div>
+  );
 };
 
-// Export for use in bootstrap.js
-if (typeof module !== 'undefined') {
-  module.exports = ProposalCard;
-} else {
-  window.ProposalCard = ProposalCard;
-}
+export default ProposalCard;

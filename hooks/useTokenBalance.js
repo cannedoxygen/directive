@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Contract, BrowserProvider, formatUnits } from 'ethers';
+// hooks/useTokenBalance.js
+const { useState, useEffect } = require('react');
+const { Contract, BrowserProvider, formatUnits } = require('ethers');
 
 // Simplified ERC20 ABI with just the functions we need
 const ERC20_ABI = [
@@ -15,11 +16,11 @@ const ERC20_ABI = [
  * @param {number} requiredAmount - Minimum amount required for access
  * @returns {Object} Token balance information
  */
-const useTokenBalance = (
+function useTokenBalance(
   walletAddress, 
   tokenAddress = '0xa884C16a93792D1E0156fF4C8A3B2C59b8d04C9A', // Replace with actual Aikira token address
   requiredAmount = 10000 // Minimum tokens required
-) => {
+) {
   const [tokenInfo, setTokenInfo] = useState({
     balance: 0,
     formattedBalance: '0',
@@ -96,6 +97,6 @@ const useTokenBalance = (
   }, [walletAddress, tokenAddress, requiredAmount]);
   
   return tokenInfo;
-};
+}
 
-export default useTokenBalance;
+module.exports = useTokenBalance;

@@ -1,59 +1,75 @@
-import React, { useState, useEffect } from 'react';
-import PhantomConnect from './PhantomConnect.jsx';
-import TerminalInput from './TerminalInput.jsx';
-import TagSelector from './TagSelector.jsx';
-import StatusIndicator from './StatusIndicator.jsx';
-import ProposalShowcase from './ProposalShowcase.jsx';
-import usePhantomWallet from '../hooks/usePhantomWallet.js';
-import useTokenBalance from '../hooks/useTokenBalance.js';
-import { addProposal, getProposals } from '../db/localDb.js';
+// components/ProposalSystem.jsx
+const React = require('react');
+const { useState, useEffect } = React;
+const PhantomConnect = require('./PhantomConnect');
+const TagSelector = require('./TagSelector');
+const StatusIndicator = require('./StatusIndicator');
+const ProposalShowcase = require('./ProposalShowcase');
+const localDb = require('../db/localDb');
+const useTokenBalance = require('../hooks/useTokenBalance');
 
-// Development mode flag - set to true to bypass token requirements for testing
-const DEV_MODE = true;
+// Development mode flag - set to false
+const DEV_MODE = false;
 
-// Aikira token configuration - will need a real address for production
-const AIKIRA_TOKEN_ADDRESS = '0xa884C16a93792D1E0156fF4C8A3B2C59b8d04C9A'; // Use the one from useTokenBalance hook
-const REQUIRED_TOKEN_AMOUNT = 10000; // Minimum tokens required to submit proposals
+// Aikira token configuration
+const AIKIRA_TOKEN_ADDRESS = '0xa884C16a93792D1E0156fF4C8A3B2C59b8d04C9A';
+const REQUIRED_TOKEN_AMOUNT = 10000;
 
-/**
- * Main component that orchestrates the proposal submission system
- */
-const ProposalSystem = () => {
+function ProposalSystem() {
   // State
+  const [walletAddress, setWalletAddress] = useState('');
   const [proposalText, setProposalText] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [submissionStatus, setSubmissionStatus] = useState(null);
   const [showProposals, setShowProposals] = useState(false);
   const [allProposals, setAllProposals] = useState([]);
+  const [userId, setUserId] = useState(() => {
+    // Use stored ID or generate a new one
+    const storedId = localStorage.getItem('aikira_user_id');
+    return storedId || `user-${Date.now()}`;
+  });
   
-  // Custom hooks
-  const { 
-    address, 
-    isConnected, 
-    isConnecting, 
-    connect, 
-    disconnect,
-    isPhantomInstalled
-  } = usePhantomWallet();
-  
-  // Use the token balance hook with the configured address
+  // Use token balance hook
   const tokenInfo = useTokenBalance(
-    address,
+    walletAddress,
     AIKIRA_TOKEN_ADDRESS,
     REQUIRED_TOKEN_AMOUNT
   );
   
-  // Override token check in development mode
-  const hasTokens = DEV_MODE ? true : tokenInfo.hasEnoughTokens;
+  // Determine if user has enough tokens
+  const hasTokens = DEV_MODE || tokenInfo.hasEnoughTokens;
+  
+  // Save userId to localStorage
+  useEffect(() => {
+    localStorage.setItem('aikira_user_id', userId);
+  }, [userId]);
   
   // Load proposals on mount
   useEffect(() => {
-    const proposals = getProposals();
-    setAllProposals(proposals);
-  }, []);
+    try {
+      const proposals = localDb.getProposals();
+      
+      // Process proposals to add userVote property
+      const processedProposals = proposals.map(proposal => ({
+        ...proposal,
+        userVote: localDb.getUserVote(proposal.id, userId)
+      }));
+      
+      setAllProposals(processedProposals || []);
+    } catch (err) {
+      console.error('Error loading proposals:', err);
+      setAllProposals([]);
+    }
+  }, [userId]);
+  
+  // Handle wallet connection
+  const handleConnect = (address) => {
+    console.log("Wallet connected:", address);
+    setWalletAddress(address);
+  };
   
   // Handle proposal submission
-  const handleSubmitProposal = async () => {
+  const handleSubmitProposal = () => {
     if (!proposalText.trim() || !selectedTag) return;
     
     setSubmissionStatus('uploading');
@@ -62,12 +78,12 @@ const ProposalSystem = () => {
     const newProposal = {
       proposal: proposalText,
       tag: selectedTag,
-      walletAddress: address
+      walletAddress: walletAddress || 'Anonymous'
     };
     
     try {
       // Add to local database
-      const proposalId = addProposal(newProposal);
+      const proposalId = localDb.addProposal(newProposal);
       
       if (proposalId) {
         // Update local state with new proposal
@@ -75,7 +91,10 @@ const ProposalSystem = () => {
           ...newProposal,
           id: proposalId,
           timestamp: new Date().toISOString(),
-          status: 'pending'
+          status: 'pending',
+          upvotes: 0,
+          downvotes: 0,
+          userVote: null
         };
         
         setAllProposals(prev => [updatedProposal, ...prev]);
@@ -103,172 +122,160 @@ const ProposalSystem = () => {
     }
   };
   
+  // Handle proposal voting
+  const handleVote = (proposalId, voteType) => {
+    try {
+      const success = localDb.voteOnProposal(proposalId, userId, voteType);
+      
+      if (success) {
+        // Update proposals in state to reflect the vote
+        setAllProposals(prevProposals => 
+          prevProposals.map(proposal => {
+            if (proposal.id === proposalId) {
+              // Get updated votes
+              const proposals = localDb.getProposals();
+              const updatedProposal = proposals.find(p => p.id === proposalId);
+              
+              if (updatedProposal) {
+                return {
+                  ...updatedProposal,
+                  userVote: localDb.getUserVote(proposalId, userId)
+                };
+              }
+            }
+            return proposal;
+          })
+        );
+      }
+    } catch (err) {
+      console.error('Error voting on proposal:', err);
+    }
+  };
+  
   // Handle tag selection
   const handleTagSelect = (tag) => {
     setSelectedTag(tag);
   };
   
   // Handle text input
-  const handleProposalTextChange = (text) => {
-    setProposalText(text);
-  };
-  
-  // Toggle proposal showcase view
-  const toggleShowProposals = () => {
-    setShowProposals(prev => !prev);
+  const handleProposalTextChange = (e) => {
+    setProposalText(e.target.value);
   };
   
   // Render different views based on connection & token status
   const renderContent = () => {
     // If not connected to wallet
-    if (!isConnected && !DEV_MODE) {
-      return (
-        <div className="connection-required">
-          <h2>Connect Wallet to Submit Proposals</h2>
-          <p>Ownership of $AIKIRA tokens is required to participate.</p>
-          
-          {!isPhantomInstalled ? (
-            <div className="phantom-not-installed">
-              <p>Phantom wallet not detected. Please install Phantom to continue.</p>
-              <a 
-                href="https://phantom.app/" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="install-link"
-              >
-                Install Phantom
-              </a>
-            </div>
-          ) : (
-            <PhantomConnect 
-              onConnect={connect} 
-              onDisconnect={disconnect}
-            />
-          )}
-          
-          {DEV_MODE && (
-            <div className="dev-mode-notice">
-              <p>Development Mode Active: Token verification bypassed</p>
-            </div>
-          )}
-        </div>
-      );
+    if (!walletAddress && !DEV_MODE) {
+      return React.createElement('div', { className: 'connection-required' }, [
+        React.createElement('h2', { key: 'title' }, 'Connect Wallet to Submit Proposals'),
+        React.createElement('p', { key: 'info' }, 'Ownership of $AIKIRA tokens is required to participate.'),
+        
+        React.createElement(PhantomConnect, {
+          key: 'connect',
+          onConnect: handleConnect
+        })
+      ]);
     }
     
     // If connected but not enough tokens (and not in dev mode)
-    if (!hasTokens && !DEV_MODE) {
-      return (
-        <div className="tokens-required">
-          <h2>$AIKIRA Tokens Required</h2>
-          <p>You need at least {REQUIRED_TOKEN_AMOUNT} $AIKIRA tokens to submit proposals.</p>
-          <p>Current balance: {tokenInfo.formattedBalance} {tokenInfo.symbol}</p>
-          
-          <div className="token-actions">
-            <a 
-              href="https://app.uniswap.org/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="buy-link"
-            >
-              Get $AIKIRA
-            </a>
-            <button 
-              className="disconnect-button"
-              onClick={disconnect}
-            >
-              Disconnect Wallet
-            </button>
-          </div>
-        </div>
-      );
+    if (walletAddress && !hasTokens && !DEV_MODE) {
+      return React.createElement('div', { className: 'tokens-required' }, [
+        React.createElement('h2', { key: 'title' }, '$AIKIRA Tokens Required'),
+        React.createElement('p', { key: 'info' }, `You need at least ${REQUIRED_TOKEN_AMOUNT} $AIKIRA tokens to submit proposals.`),
+        React.createElement('p', { key: 'balance' }, `Current balance: ${tokenInfo.formattedBalance} ${tokenInfo.symbol}`),
+        
+        React.createElement('div', { key: 'actions', className: 'token-actions' }, [
+          React.createElement('a', {
+            key: 'buy',
+            href: 'https://app.uniswap.org/',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            className: 'buy-link'
+          }, 'Get $AIKIRA')
+        ])
+      ]);
     }
     
-    // If connected with enough tokens, or in dev mode, show the submission form or proposals
-    return (
-      <div className="proposal-container">
-        <div className="view-toggle">
-          <button 
-            className={`toggle-button ${!showProposals ? 'active' : ''}`}
-            onClick={() => setShowProposals(false)}
-          >
-            Submit
-          </button>
-          <button 
-            className={`toggle-button ${showProposals ? 'active' : ''}`}
-            onClick={() => setShowProposals(true)}
-          >
-            View Proposals
-          </button>
-        </div>
-        
-        {showProposals ? (
-          <ProposalShowcase proposals={allProposals} />
-        ) : (
-          <div className="submission-form">
-            {isConnected ? (
-              <div className="wallet-status">
-                <span>Connected: {address.slice(0, 6)}...{address.slice(-4)}</span>
-                <button 
-                  className="disconnect-button"
-                  onClick={disconnect}
-                >
-                  Disconnect
-                </button>
-              </div>
-            ) : DEV_MODE && (
-              <div className="dev-mode-wallet">
-                <span>Development Mode: Wallet Connection Bypassed</span>
-              </div>
-            )}
+    // Main interface - either connected with tokens or in dev mode
+    return React.createElement('div', { className: 'proposal-container' }, [
+      React.createElement('div', { key: 'toggle', className: 'view-toggle' }, [
+        React.createElement('button', {
+          key: 'submit-toggle',
+          className: `toggle-button ${!showProposals ? 'active' : ''}`,
+          onClick: () => setShowProposals(false)
+        }, 'Submit'),
+        React.createElement('button', {
+          key: 'view-toggle',
+          className: `toggle-button ${showProposals ? 'active' : ''}`,
+          onClick: () => setShowProposals(true)
+        }, 'View Proposals')
+      ]),
+      
+      showProposals 
+        ? React.createElement(ProposalShowcase, { 
+            key: 'showcase',
+            proposals: allProposals,
+            onVote: handleVote
+          })
+        : React.createElement('div', { key: 'form', className: 'submission-form' }, [
+            // Wallet status display
+            walletAddress 
+              ? React.createElement('div', { key: 'wallet', className: 'wallet-status' }, [
+                  React.createElement('span', { key: 'address' }, `Connected: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`),
+                  React.createElement('div', { key: 'token', className: 'token-status' },
+                    React.createElement('span', {}, `Balance: ${tokenInfo.formattedBalance} ${tokenInfo.symbol}`)
+                  )
+                ])
+              : DEV_MODE && React.createElement('div', { key: 'dev-wallet', className: 'dev-mode-wallet' }, 
+                  React.createElement('span', { key: 'dev-message' }, 'Development Mode: Wallet Connection Bypassed')
+                ),
             
-            {isConnected && (
-              <div className="token-status">
-                <span>Balance: {tokenInfo.formattedBalance} {tokenInfo.symbol}</span>
-              </div>
-            )}
+            // Tag selector
+            React.createElement(TagSelector, {
+              key: 'tags',
+              selectedTag: selectedTag,
+              onSelectTag: handleTagSelect
+            }),
             
-            <TagSelector 
-              selectedTag={selectedTag}
-              onSelectTag={handleTagSelect}
-            />
+            // Terminal input
+            React.createElement('textarea', {
+              key: 'input',
+              className: 'terminal-input',
+              placeholder: 'Type your proposal here...',
+              value: proposalText,
+              onChange: handleProposalTextChange,
+              rows: 4
+            }),
             
-            <TerminalInput 
-              onSubmit={handleProposalTextChange}
-              value={proposalText}
-            />
+            // Submit button
+            React.createElement('button', {
+              key: 'submit',
+              className: 'submit-proposal-button',
+              onClick: handleSubmitProposal,
+              disabled: !proposalText.trim() || !selectedTag
+            }, 'Submit Proposal'),
             
-            <button 
-              className="submit-proposal-button"
-              onClick={handleSubmitProposal}
-              disabled={!proposalText.trim() || !selectedTag}
-            >
-              Submit Proposal
-            </button>
+            // Status indicator
+            submissionStatus && React.createElement(StatusIndicator, {
+              key: 'status',
+              status: submissionStatus
+            }),
             
-            {submissionStatus && (
-              <StatusIndicator status={submissionStatus} />
-            )}
-            
-            <div className="aikira-flavor-text">
-              <p>"I do not promise approval. I promise consideration."</p>
-            </div>
-          </div>
-        )}
-      </div>
-    );
+            // Flavor text
+            React.createElement('div', { key: 'flavor', className: 'aikira-flavor-text' }, 
+              React.createElement('p', { key: 'flavor-text' }, '"I do not promise approval. I promise consideration."')
+            )
+          ])
+    ]);
   };
   
-  return (
-    <div className="proposal-system">
-      <h1 className="system-title">Aikira Community Proposals</h1>
-      {renderContent()}
-      {DEV_MODE && (
-        <div className="dev-mode-banner">
-          <p>Development Mode Active: Wallet and token requirements bypassed for testing</p>
-        </div>
-      )}
-    </div>
-  );
-};
+  return React.createElement('div', { className: 'proposal-system' }, [
+    React.createElement('h1', { key: 'title', className: 'system-title' }, 'Aikira Community Proposals'),
+    renderContent(),
+    DEV_MODE && React.createElement('div', { key: 'dev-banner', className: 'dev-mode-banner' },
+      React.createElement('p', { key: 'banner-text' }, 'Development Mode Active: Wallet and token requirements bypassed for testing')
+    )
+  ]);
+}
 
-export default ProposalSystem;
+module.exports = ProposalSystem;

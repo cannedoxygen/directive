@@ -1,19 +1,12 @@
-import React, { useEffect, useState } from 'react';
+const React = require('react');
+const { useState, useEffect } = React;
 
-/**
- * Component to show submission status with animations
- * @param {Object} props - Component props
- * @param {string} props.status - Current status (uploading, success, error)
- * @param {string} props.successMessage - Message to show on success
- * @param {string} props.errorMessage - Message to show on error
- * @param {number} props.autoHideDuration - Time in ms to automatically hide success/error messages (0 to disable)
- */
-const StatusIndicator = ({ 
+function StatusIndicator({ 
   status, 
   successMessage = "Your suggestion has been recorded. Review pending during next treasury unlock.",
   errorMessage = "Unable to submit your proposal. Please try again.",
   autoHideDuration = 5000
-}) => {
+}) {
   const [visible, setVisible] = useState(true);
   
   // Auto-hide the status after specified duration
@@ -38,45 +31,32 @@ const StatusIndicator = ({
   const getStatusContent = () => {
     switch (status) {
       case 'uploading':
-        return (
-          <div className="status-uploading">
-            <div className="upload-animation">
-              <div className="upload-pulse"></div>
-            </div>
-            <p>Processing your proposal...</p>
-          </div>
-        );
-        
+        return React.createElement('div', { className: 'status-uploading' }, [
+          React.createElement('div', { key: 'spinner', className: 'upload-animation' }, 
+            React.createElement('div', { className: 'upload-pulse' })
+          ),
+          React.createElement('p', { key: 'message' }, 'Processing your proposal...')
+        ]);
       case 'success':
-        return (
-          <div className="status-success">
-            <div className="status-icon">
-              <div className="status-dot success"></div>
-            </div>
-            <p>{successMessage}</p>
-          </div>
-        );
-        
+        return React.createElement('div', { className: 'status-success' }, [
+          React.createElement('div', { key: 'icon', className: 'status-icon' },
+            React.createElement('div', { className: 'status-dot success' })
+          ),
+          React.createElement('p', { key: 'message' }, successMessage)
+        ]);
       case 'error':
-        return (
-          <div className="status-error">
-            <div className="status-icon">
-              <div className="status-dot error"></div>
-            </div>
-            <p>{errorMessage}</p>
-          </div>
-        );
-        
+        return React.createElement('div', { className: 'status-error' }, [
+          React.createElement('div', { key: 'icon', className: 'status-icon' },
+            React.createElement('div', { className: 'status-dot error' })
+          ),
+          React.createElement('p', { key: 'message' }, errorMessage)
+        ]);
       default:
         return null;
     }
   };
   
-  return (
-    <div className={`status-indicator ${status}`}>
-      {getStatusContent()}
-    </div>
-  );
-};
+  return React.createElement('div', { className: `status-indicator ${status}` }, getStatusContent());
+}
 
-export default StatusIndicator;
+module.exports = StatusIndicator;
