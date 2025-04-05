@@ -74,26 +74,46 @@
       cursor: pointer;
       z-index: 10000;
     }
+
+    /* Top-right button styles */
+    .top-right-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
-  <div style="padding: 20px;">
-    <h1>Aikira Proposal System</h1>
-    
-    <!-- Button container with loader -->
-    <div id="aikira-proposal-button">
-      <div class="app-loader">
-        <div class="loader-spinner"></div>
-        <p>Loading AIKIRA...</p>
-      </div>
+  <!-- Top-right proposal button -->
+  <div id="aikira-proposal-button" class="top-right-button">
+    <div class="app-loader">
+      <div class="loader-spinner"></div>
+      <p>Loading...</p>
     </div>
-    
-    <!-- System container with loader -->
-    <div style="margin-top: 40px;" id="aikira-proposal-system">
-      <div class="app-loader">
-        <div class="loader-spinner"></div>
-        <p>Loading proposal system...</p>
-      </div>
+  </div>
+
+  <!-- Landing Page Container -->
+  <div class="landing-container">
+    <div class="aikira-image-container">
+      <!-- Floating particles -->
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      
+      <!-- Aikira image -->
+      <img src="assets/images/aikira.png" alt="Aikira AI" class="aikira-image">
+    </div>
+  </div>
+  
+  <!-- System container with loader -->
+  <div id="aikira-proposal-system">
+    <div class="app-loader">
+      <div class="loader-spinner"></div>
+      <p>Loading proposal system...</p>
     </div>
   </div>
   
@@ -123,6 +143,12 @@
     // Log initial page load
     window.addEventListener('DOMContentLoaded', () => {
       logDebug('DOM loaded');
+      
+      // Hide proposal system initially
+      const systemEl = document.getElementById('aikira-proposal-system');
+      if (systemEl) {
+        systemEl.style.display = 'none';
+      }
     });
     
     // Log script loading events

@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { updateProposal } from '../db/localDb';
+// components/ProposalCard.jsx
+const React = require('react');
+const { useState, useEffect } = React;
+const localDb = require('../db/localDb');
 
 /**
  * Enhanced proposal card component with animations and voting
@@ -7,23 +9,42 @@ import { updateProposal } from '../db/localDb';
  * @param {Object} props.proposal - Proposal data object
  * @param {Function} props.onVote - Function called when vote is cast
  */
-const ProposalCard = ({ proposal, onVote }) => {
-  // Local state for votes
-  const [upvotes, setUpvotes] = useState(proposal.upvotes || 0);
-  const [downvotes, setDownvotes] = useState(proposal.downvotes || 0);
-  const [userVote, setUserVote] = useState(proposal.userVote || null); // 'up', 'down', or null
+const ProposalCard = ({ proposal = {}, onVote }) => {
+  // Add default values to prevent undefined errors
+  const safeProposal = {
+    id: '',
+    proposal: '',
+    tag: '',
+    walletAddress: '',
+    timestamp: '',
+    status: 'pending',
+    upvotes: 0,
+    downvotes: 0,
+    userVote: null,
+    ...proposal // Merge with actual proposal data if present
+  };
+  
+  // Local state for votes with safe defaults
+  const [upvotes, setUpvotes] = useState(safeProposal.upvotes || 0);
+  const [downvotes, setDownvotes] = useState(safeProposal.downvotes || 0);
+  const [userVote, setUserVote] = useState(safeProposal.userVote || null); // 'up', 'down', or null
   const [isAnimating, setIsAnimating] = useState(false);
   
   // Format timestamp to readable date
   const formatDate = (timestamp) => {
     if (!timestamp) return 'Unknown date';
     
-    const date = new Date(timestamp);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch (e) {
+      console.error('Error formatting date:', e);
+      return 'Invalid date';
+    }
   };
   
   // Truncate proposal text if it's too long
@@ -37,6 +58,7 @@ const ProposalCard = ({ proposal, onVote }) => {
   // Format wallet address for display
   const formatWalletAddress = (address) => {
     if (!address) return 'Anonymous';
+    if (typeof address !== 'string') return 'Invalid Address';
     
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
@@ -56,7 +78,7 @@ const ProposalCard = ({ proposal, onVote }) => {
   // Handle vote button click
   const handleVote = (voteType) => {
     // Don't allow voting if proposal is not pending
-    if (proposal.status !== 'pending') return;
+    if (safeProposal.status !== 'pending') return;
     
     // Animate the vote count
     setIsAnimating(true);
@@ -65,25 +87,25 @@ const ProposalCard = ({ proposal, onVote }) => {
     // If user clicks the same vote type they already selected, remove their vote
     if (userVote === voteType) {
       if (voteType === 'up') {
-        setUpvotes(prevUpvotes => prevUpvotes - 1);
+        setUpvotes(prevUpvotes => Math.max(0, prevUpvotes - 1));
       } else {
-        setDownvotes(prevDownvotes => prevDownvotes - 1);
+        setDownvotes(prevDownvotes => Math.max(0, prevDownvotes - 1));
       }
       setUserVote(null);
       
       // Call parent component's onVote callback
-      if (onVote) {
-        onVote(proposal.id, null);
+      if (onVote && safeProposal.id) {
+        onVote(safeProposal.id, null);
       }
       return;
     }
     
     // If user is changing their vote
     if (userVote === 'up' && voteType === 'down') {
-      setUpvotes(prevUpvotes => prevUpvotes - 1);
+      setUpvotes(prevUpvotes => Math.max(0, prevUpvotes - 1));
       setDownvotes(prevDownvotes => prevDownvotes + 1);
     } else if (userVote === 'down' && voteType === 'up') {
-      setDownvotes(prevDownvotes => prevDownvotes - 1);
+      setDownvotes(prevDownvotes => Math.max(0, prevDownvotes - 1));
       setUpvotes(prevUpvotes => prevUpvotes + 1);
     } else if (voteType === 'up') {
       // New upvote
@@ -96,65 +118,80 @@ const ProposalCard = ({ proposal, onVote }) => {
     setUserVote(voteType);
     
     // Call parent component's onVote callback
-    if (onVote) {
-      onVote(proposal.id, voteType);
+    if (onVote && safeProposal.id) {
+      onVote(safeProposal.id, voteType);
     }
   };
   
-  return (
-    <div className={`proposal-card ${proposal.status || 'pending'}`}>
-      {/* Card Header */}
-      <div className="card-header">
-        <span className="proposal-tag">{proposal.tag}</span>
-        <span className="submission-date">{formatDate(proposal.timestamp)}</span>
-      </div>
+  // If there's no valid proposal object at all, show a fallback
+  if (!proposal || typeof proposal !== 'object') {
+    return React.createElement('div', { className: 'proposal-card error' },
+      React.createElement('p', {}, 'Error loading proposal data')
+    );
+  }
+  
+  return React.createElement('div', { 
+    className: `proposal-card ${safeProposal.status || 'pending'}`
+  }, [
+    // Card Header
+    React.createElement('div', { key: 'header', className: 'card-header' }, [
+      React.createElement('span', { key: 'tag', className: 'proposal-tag' }, safeProposal.tag || 'Uncategorized'),
+      React.createElement('span', { key: 'date', className: 'submission-date' }, formatDate(safeProposal.timestamp))
+    ]),
+    
+    // Proposal Content
+    React.createElement('div', { key: 'content', className: 'proposal-content' }, 
+      React.createElement('p', {}, truncateText(safeProposal.proposal))
+    ),
+    
+    // Card Footer
+    React.createElement('div', { key: 'footer', className: 'card-footer' }, [
+      React.createElement('div', { key: 'submitter', className: 'submitter-info' }, [
+        React.createElement('span', { key: 'icon', className: 'wallet-icon' }, '💳'),
+        React.createElement('span', { key: 'address', className: 'wallet-address' }, 
+          formatWalletAddress(safeProposal.walletAddress)
+        )
+      ]),
+      React.createElement('div', { 
+        key: 'status', 
+        className: `proposal-status ${safeProposal.status || 'pending'}`
+      }, getStatusText(safeProposal.status))
+    ]),
+    
+    // Voting Section
+    React.createElement('div', { key: 'voting', className: 'proposal-voting' }, [
+      // Upvote button
+      React.createElement('button', {
+        key: 'upvote',
+        className: `vote-button upvote ${userVote === 'up' ? 'active' : ''}`,
+        onClick: () => handleVote('up'),
+        disabled: safeProposal.status !== 'pending',
+        'aria-label': 'Upvote'
+      }, [
+        React.createElement('span', { key: 'icon', className: 'vote-icon' }, '👍'),
+        React.createElement('span', { 
+          key: 'count',
+          className: `vote-count ${isAnimating && userVote === 'up' ? 'changed' : ''}`
+        }, upvotes)
+      ]),
       
-      {/* Proposal Content */}
-      <div className="proposal-content">
-        <p>{truncateText(proposal.proposal)}</p>
-      </div>
-      
-      {/* Card Footer */}
-      <div className="card-footer">
-        <div className="submitter-info">
-          <span className="wallet-icon">💳</span>
-          <span className="wallet-address">{formatWalletAddress(proposal.walletAddress)}</span>
-        </div>
-        <div className={`proposal-status ${proposal.status || 'pending'}`}>
-          {getStatusText(proposal.status)}
-        </div>
-      </div>
-      
-      {/* Voting Section */}
-      <div className="proposal-voting">
-        {/* Upvote button */}
-        <button
-          className={`vote-button upvote ${userVote === 'up' ? 'active' : ''}`}
-          onClick={() => handleVote('up')}
-          disabled={proposal.status !== 'pending'}
-          aria-label="Upvote"
-        >
-          <span className="vote-icon">👍</span>
-          <span className={`vote-count ${isAnimating && userVote === 'up' ? 'changed' : ''}`}>
-            {upvotes}
-          </span>
-        </button>
-        
-        {/* Downvote button */}
-        <button
-          className={`vote-button downvote ${userVote === 'down' ? 'active' : ''}`}
-          onClick={() => handleVote('down')}
-          disabled={proposal.status !== 'pending'}
-          aria-label="Downvote"
-        >
-          <span className="vote-icon">👎</span>
-          <span className={`vote-count ${isAnimating && userVote === 'down' ? 'changed' : ''}`}>
-            {downvotes}
-          </span>
-        </button>
-      </div>
-    </div>
-  );
+      // Downvote button
+      React.createElement('button', {
+        key: 'downvote',
+        className: `vote-button downvote ${userVote === 'down' ? 'active' : ''}`,
+        onClick: () => handleVote('down'),
+        disabled: safeProposal.status !== 'pending',
+        'aria-label': 'Downvote'
+      }, [
+        React.createElement('span', { key: 'icon', className: 'vote-icon' }, '👎'),
+        React.createElement('span', { 
+          key: 'count',
+          className: `vote-count ${isAnimating && userVote === 'down' ? 'changed' : ''}`
+        }, downvotes)
+      ])
+    ])
+  ]);
 };
 
-export default ProposalCard;
+// Export the module using CommonJS syntax
+module.exports = ProposalCard;

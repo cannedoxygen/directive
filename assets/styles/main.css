@@ -1,4 +1,4 @@
-/* Aikira Proposal System - Main CSS */
+/* Aikira Proposal System - Main CSS with Dark Theme */
 
 :root {
   /* Pastel Color Palette */
@@ -6,18 +6,19 @@
   --pastel-purple: #d9c2f0;
   --pastel-turquoise: #c2f0e6;
   --pastel-blue: #c2d4f0;
-  --light-bg: #f9f7fc;
-  --dark-text: #4a4a68;
+  --dark-bg: #121221; /* Darker background */
+  --light-bg: #1a1a2e; /* Slightly lighter dark background */
+  --dark-text: #f0f0f0; /* Light text for dark backgrounds */
   --light-text: #f9f7fc;
-  --border-color: #e0d8ee;
-  --shadow-color: rgba(185, 160, 220, 0.2);
+  --border-color: #2c2c44;
+  --shadow-color: rgba(0, 0, 0, 0.4);
 }
 
 /* General Styles */
 body {
   font-family: 'Roboto', sans-serif;
   color: var(--dark-text);
-  background-color: var(--light-bg);
+  background-color: var(--dark-bg);
   line-height: 1.6;
   padding: 20px;
 }
@@ -26,13 +27,15 @@ body {
 .proposal-system {
   max-width: 800px;
   margin: 20px auto;
-  background-color: white;
+  background-color: var(--light-bg);
   border-radius: 16px;
-  box-shadow: 0 8px 30px var(--shadow-color);
+  box-shadow: 0 8px 30px var(--shadow-color),
+              0 0 5px rgba(217, 194, 240, 0.3);
   padding: 20px;
   /* Ensure visibility */
   display: block;
   opacity: 1;
+  border: 1px solid rgba(217, 194, 240, 0.2);
 }
 
 /* System Title */
@@ -76,6 +79,8 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   margin: 20px 0;
+  background-color: var(--light-bg);
+  box-shadow: 0 0 5px rgba(217, 194, 240, 0.3);
 }
 
 /* Wallet Container - Fix visibility */
@@ -86,6 +91,10 @@ body {
   display: block;
   margin: 20px auto;
   max-width: 300px;
+  background-color: var(--light-bg);
+  border-radius: 12px;
+  box-shadow: 0 0 5px rgba(217, 194, 240, 0.3);
+  border: 1px solid rgba(217, 194, 240, 0.2);
 }
 
 .connect-wallet-button {
@@ -107,14 +116,17 @@ body {
   box-shadow: 0 4px 12px var(--shadow-color);
 }
 
+/* Enhanced wallet and token info display */
 .wallet-info {
   margin-top: 15px;
-  padding: 10px;
-  background-color: var(--light-bg);
+  padding: 15px;
+  background-color: var(--dark-bg);
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border: 1px solid rgba(217, 194, 240, 0.15);
+  box-shadow: 0 0 5px rgba(217, 194, 240, 0.2);
 }
 
 .wallet-address {
@@ -122,6 +134,11 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  background-color: var(--dark-bg);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  color: var(--dark-text);
 }
 
 .wallet-address span {
@@ -151,6 +168,8 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 12px;
   margin: 20px 0;
+  background-color: var(--light-bg);
+  box-shadow: 0 0 5px rgba(217, 194, 240, 0.3);
 }
 
 .token-actions {
@@ -178,6 +197,10 @@ body {
 /* Proposal Container */
 .proposal-container {
   padding: 20px;
+  background-color: var(--light-bg);
+  border-radius: 12px;
+  border: 1px solid rgba(217, 194, 240, 0.2);
+  box-shadow: 0 0 5px rgba(217, 194, 240, 0.3);
 }
 
 /* View Toggle */
@@ -188,13 +211,14 @@ body {
 }
 
 .toggle-button {
-  background-color: var(--light-bg);
+  background-color: var(--dark-bg);
   border: none;
   padding: 8px 16px;
   border-radius: 20px;
   margin: 0 5px;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: var(--dark-text);
 }
 
 .toggle-button.active {
@@ -207,24 +231,52 @@ body {
 .submission-form {
   max-width: 600px;
   margin: 0 auto;
+  background-color: var(--light-bg);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(217, 194, 240, 0.2);
+  box-shadow: 0 0 5px rgba(217, 194, 240, 0.3);
 }
 
+/* Enhanced wallet status display */
 .wallet-status {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: var(--light-bg);
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  background-color: var(--dark-bg);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(217, 194, 240, 0.15);
+  box-shadow: 0 0 5px rgba(217, 194, 240, 0.2);
 }
 
+/* Enhanced token status display */
 .token-status {
-  background-color: var(--light-bg);
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 15px;
+  background-color: var(--dark-bg);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
   font-family: monospace;
+  border: 1px solid rgba(217, 194, 240, 0.15);
+  box-shadow: 0 0 5px rgba(217, 194, 240, 0.2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Add token icon styling */
+.token-status::before {
+  content: '💰';
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+/* Format balance text */
+.token-status span {
+  font-weight: 700;
+  color: var(--pastel-purple);
+  letter-spacing: 0.5px;
 }
 
 /* Submit Button */
@@ -243,11 +295,12 @@ body {
 
 .submit-proposal-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px var(--shadow-color);
+  box-shadow: 0 4px 15px rgba(185, 160, 220, 0.4);
 }
 
 .submit-proposal-button:disabled {
-  background: #cccccc;
+  background: #3a3a4a;
+  color: #6c6c7c;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
@@ -263,8 +316,8 @@ body {
 
 /* Development Mode */
 .dev-mode-banner {
-  background-color: #ffe9a3;
-  color: #8a6d00;
+  background-color: #2d2d10;
+  color: #ffd93d;
   padding: 10px;
   text-align: center;
   border-radius: 5px;
@@ -273,8 +326,8 @@ body {
 }
 
 .dev-mode-notice {
-  background-color: #ffe9a3;
-  color: #8a6d00;
+  background-color: #2d2d10;
+  color: #ffd93d;
   padding: 10px;
   border-radius: 5px;
   margin-top: 15px;
@@ -282,7 +335,7 @@ body {
 }
 
 .dev-mode-wallet {
-  background-color: #ffe9a3;
+  background-color: #2d2d10;
   padding: 10px 15px;
   border-radius: 8px;
   margin-bottom: 15px;
@@ -294,6 +347,46 @@ body {
   margin-top: 10px;
   font-size: 14px;
   text-align: center;
+}
+
+/* Make all text inputs and textareas have dark background */
+input, textarea {
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
+  border: 1px solid var(--border-color);
+}
+
+/* Make tag selectors visible against dark background */
+.tag-filter, .tag {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure proper contrast for any non-specifically styled text */
+p, h1, h2, h3, h4, h5, h6, span, div {
+  color: var(--dark-text);
+}
+
+/* Glowing purple outlines for containers animation */
+@keyframes outline-pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(217, 194, 240, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(217, 194, 240, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(217, 194, 240, 0.3);
+  }
+}
+
+/* Container hover effects */
+.proposal-system:hover,
+.submission-form:hover,
+.terminal-container:hover,
+.proposal-container:hover,
+.wallet-status:hover,
+.token-status:hover {
+  animation: outline-pulse 2s infinite;
 }
 
 /* Responsive Adjustments */

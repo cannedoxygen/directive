@@ -1,6 +1,7 @@
-// Enhanced ProposalShowcase with improved layout and animation support
+// components/ProposalShowcase.jsx
 const React = require('react');
 const { useState, useEffect, useRef } = React;
+const ProposalCard = require('./ProposalCard');
 
 /**
  * Enhanced component to display submitted proposals in a responsive grid layout
@@ -10,6 +11,9 @@ const { useState, useEffect, useRef } = React;
  * @param {Function} props.onVote - Function called when a proposal is voted on
  */
 const ProposalShowcase = ({ proposals = [], onTagFilter, onVote }) => {
+  // Ensure proposals is an array
+  const safeProposals = Array.isArray(proposals) ? proposals : [];
+  
   const [filteredProposals, setFilteredProposals] = useState([]);
   const [activeTag, setActiveTag] = useState('All');
   const showcaseRef = useRef(null);
@@ -19,12 +23,19 @@ const ProposalShowcase = ({ proposals = [], onTagFilter, onVote }) => {
   
   // Filter proposals when activeTag or proposals change
   useEffect(() => {
-    if (activeTag === 'All') {
-      setFilteredProposals(proposals);
-    } else {
-      setFilteredProposals(proposals.filter(proposal => proposal.tag === activeTag));
+    try {
+      if (activeTag === 'All') {
+        setFilteredProposals(safeProposals);
+      } else {
+        setFilteredProposals(safeProposals.filter(proposal => 
+          proposal && proposal.tag === activeTag
+        ));
+      }
+    } catch (error) {
+      console.error('Error filtering proposals:', error);
+      setFilteredProposals([]);
     }
-  }, [activeTag, proposals]);
+  }, [activeTag, safeProposals]);
   
   // Handle tag selection
   const handleTagSelect = (tag) => {
@@ -36,7 +47,7 @@ const ProposalShowcase = ({ proposals = [], onTagFilter, onVote }) => {
   
   // Handle voting on proposals
   const handleVote = (proposalId, voteType) => {
-    if (onVote) {
+    if (onVote && proposalId) {
       onVote(proposalId, voteType);
     }
   };
@@ -46,38 +57,42 @@ const ProposalShowcase = ({ proposals = [], onTagFilter, onVote }) => {
     // Skip if browser doesn't support IntersectionObserver
     if (!('IntersectionObserver' in window)) return;
     
-    const options = {
-      root: null, // Use viewport
-      rootMargin: '0px',
-      threshold: 0.1 // Trigger when 10% of element is visible
-    };
-    
-    const handleIntersection = (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target); // Stop observing after animation
-        }
-      });
-    };
-    
-    const observer = new IntersectionObserver(handleIntersection, options);
-    
-    // Get all cards in the showcase
-    if (showcaseRef.current) {
-      const cards = showcaseRef.current.querySelectorAll('.proposal-card');
-      cards.forEach(card => {
-        card.classList.add('animate-on-scroll');
-        observer.observe(card);
-      });
-    }
-    
-    return () => {
-      // Clean up observer on unmount
-      if (observer) {
-        observer.disconnect();
+    try {
+      const options = {
+        root: null, // Use viewport
+        rootMargin: '0px',
+        threshold: 0.1 // Trigger when 10% of element is visible
+      };
+      
+      const handleIntersection = (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target); // Stop observing after animation
+          }
+        });
+      };
+      
+      const observer = new IntersectionObserver(handleIntersection, options);
+      
+      // Get all cards in the showcase
+      if (showcaseRef.current) {
+        const cards = showcaseRef.current.querySelectorAll('.proposal-card');
+        cards.forEach(card => {
+          card.classList.add('animate-on-scroll');
+          observer.observe(card);
+        });
       }
-    };
+      
+      return () => {
+        // Clean up observer on unmount
+        if (observer) {
+          observer.disconnect();
+        }
+      };
+    } catch (error) {
+      console.error('Error setting up intersection observer:', error);
+    }
   }, [filteredProposals]); // Re-run when filtered proposals change
   
   return React.createElement('div', { 
@@ -98,14 +113,14 @@ const ProposalShowcase = ({ proposals = [], onTagFilter, onVote }) => {
     ),
     
     // Filtered proposals grid
-    filteredProposals.length > 0 
+    filteredProposals && filteredProposals.length > 0 
       ? React.createElement('div', { 
           key: 'grid', 
           className: 'proposal-grid'
         },
         filteredProposals.map(proposal => 
-          React.createElement(window.ProposalCard || ProposalCard, { 
-            key: proposal.id, 
+          React.createElement(ProposalCard, { 
+            key: proposal && proposal.id ? proposal.id : `proposal-${Math.random()}`, 
             proposal: proposal,
             onVote: handleVote
           })
@@ -133,8 +148,4 @@ const ProposalShowcase = ({ proposals = [], onTagFilter, onVote }) => {
 };
 
 // Export for use in bootstrap.js
-if (typeof module !== 'undefined') {
-  module.exports = ProposalShowcase;
-} else {
-  window.ProposalShowcase = ProposalShowcase;
-}
+module.exports = ProposalShowcase;

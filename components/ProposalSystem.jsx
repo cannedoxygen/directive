@@ -184,6 +184,7 @@ function ProposalSystem() {
         React.createElement('p', { key: 'info' }, `You need at least ${REQUIRED_TOKEN_AMOUNT} $AIKIRA tokens to submit proposals.`),
         React.createElement('p', { key: 'balance' }, `Current balance: ${tokenInfo.formattedBalance} ${tokenInfo.symbol}`),
         
+        // Only show the "Get AIKIRA" button when they need more tokens
         React.createElement('div', { key: 'actions', className: 'token-actions' }, [
           React.createElement('a', {
             key: 'buy',

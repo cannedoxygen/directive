@@ -1,0 +1,312 @@
+/* Enhanced button styling for Aikira proposal system */
+
+/* Main proposal button on homepage */
+.proposal-button {
+    background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-turquoise));
+    color: #121221; /* Darker text color */
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 700; /* Bolder text */
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2); /* Subtle text shadow */
+}
+  
+.proposal-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 50% 50%, 
+        var(--pastel-purple) 0%, 
+        transparent 70%
+    );
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.5s ease;
+    filter: blur(15px);
+}
+  
+.proposal-button:hover::before {
+    opacity: 0.6;
+}
+  
+.proposal-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(185, 160, 220, 0.4);
+}
+  
+/* Toggle buttons with distinct colors */
+.toggle-button {
+    background-color: rgba(220, 220, 240, 0.3);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    color: #121221; /* Darker text */
+    font-weight: 600;
+}
+  
+.toggle-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 50% 50%, 
+        var(--pastel-blue) 0%, 
+        transparent 70%
+    );
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.5s ease;
+    filter: blur(15px);
+}
+  
+.toggle-button:hover::before {
+    opacity: 0.4;
+}
+  
+.toggle-button.active {
+    background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-turquoise));
+    color: #121221; /* Darker text */
+    font-weight: 700;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+  
+.toggle-button.active::before {
+    background: radial-gradient(
+        circle at 50% 50%, 
+        var(--pastel-turquoise) 0%, 
+        transparent 70%
+    );
+    opacity: 0.5;
+}
+  
+/* Submit button with pink glow */
+.submit-proposal-button {
+    background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple));
+    color: #121221; /* Darker text */
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 700; /* Bolder */
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+  
+.submit-proposal-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 50% 50%, 
+        var(--pastel-pink) 0%, 
+        transparent 70%
+    );
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.5s ease;
+    filter: blur(15px);
+}
+  
+.submit-proposal-button:hover::before {
+    opacity: 0.6;
+}
+  
+.submit-proposal-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(247, 209, 228, 0.5);
+}
+  
+.submit-proposal-button:disabled {
+    background: #3a3a4a; /* Darker disabled state */
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    color: #6c6c7c; /* Light gray text for disabled state */
+}
+  
+.submit-proposal-button:disabled::before {
+    opacity: 0;
+}
+  
+/* Buy link button */
+.buy-link {
+    background: linear-gradient(135deg, var(--pastel-turquoise), var(--pastel-blue));
+    color: #121221; /* Darker text */
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    display: inline-block;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+  
+.buy-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 50% 50%, 
+        var(--pastel-blue) 0%, 
+        transparent 70%
+    );
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.5s ease;
+    filter: blur(15px);
+}
+  
+.buy-link:hover::before {
+    opacity: 0.5;
+}
+  
+.buy-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(194, 212, 240, 0.5);
+}
+  
+/* Tag filter buttons */
+.tag-filter {
+    background-color: rgba(220, 220, 240, 0.3);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin: 0 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: #121221; /* Darker text */
+    font-weight: 600;
+}
+  
+.tag-filter.active,
+.tag-filter:hover {
+    background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-blue));
+    color: #121221; /* Dark text on active too */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(194, 212, 240, 0.5);
+    font-weight: 700;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+  
+/* Tag options */
+.tag-options .tag {
+    background-color: rgba(220, 220, 240, 0.3);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 600;
+}
+  
+.tag-options .tag.selected,
+.tag-options .tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+}
+  
+/* Tag selector category-specific colors */
+.tag-options .tag:nth-child(1) {
+    background-color: var(--pastel-blue);
+    color: #121221; /* Darker text */
+}
+  
+.tag-options .tag:nth-child(2) {
+    background-color: var(--pastel-turquoise);
+    color: #121221; /* Darker text */
+}
+  
+.tag-options .tag:nth-child(3) {
+    background-color: var(--pastel-pink);
+    color: #121221; /* Darker text */
+}
+  
+.tag-options .tag:nth-child(4) {
+    background-color: #f0d0a0;
+    color: #121221; /* Darker text */
+}
+  
+.tag-options .tag:nth-child(5) {
+    background-color: var(--pastel-purple);
+    color: #121221; /* Darker text */
+}
+  
+/* Wallet buttons */
+.connect-wallet-button {
+    background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple));
+    color: #121221; /* Darker text */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+}
+  
+.connect-wallet-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(
+        circle at 50% 50%, 
+        var(--pastel-pink) 0%, 
+        transparent 70%
+    );
+    opacity: 0;
+    z-index: -1;
+    transition: opacity 0.5s ease;
+    filter: blur(15px);
+}
+  
+.connect-wallet-button:hover::before {
+    opacity: 0.5;
+}
+  
+.connect-wallet-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 209, 228, 0.5);
+}

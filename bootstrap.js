@@ -22,6 +22,8 @@ require('./assets/styles/main.css');
 require('./assets/styles/terminal.css');
 require('./assets/styles/enhanced-cards.css');
 require('./assets/styles/scroll-animations.css');
+require('./assets/styles/enhanced-buttons.css');
+require('./assets/styles/landing-page.css'); // Add this new file
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
