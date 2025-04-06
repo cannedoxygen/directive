@@ -1,3 +1,4 @@
+// hooks/usePhantomWallet.js
 import { useState, useEffect, useCallback } from 'react';
 
 /**
@@ -17,12 +18,14 @@ const usePhantomWallet = () => {
   useEffect(() => {
     const checkPhantom = () => {
       const isPhantomInstalled = window.ethereum && window.ethereum.isPhantom;
+      console.log("Phantom wallet detected:", isPhantomInstalled);
       setWallet(prev => ({ ...prev, isPhantomInstalled }));
       
       if (isPhantomInstalled) {
         // Check if already connected
         window.ethereum.request({ method: 'eth_accounts' })
           .then(accounts => {
+            console.log("Existing accounts:", accounts);
             if (accounts.length > 0) {
               setWallet(prev => ({
                 ...prev,
@@ -54,6 +57,7 @@ const usePhantomWallet = () => {
   
   // Handle account changes
   const handleAccountsChanged = useCallback((accounts) => {
+    console.log("Accounts changed:", accounts);
     if (accounts.length === 0) {
       // User disconnected
       setWallet(prev => ({
@@ -73,6 +77,7 @@ const usePhantomWallet = () => {
   
   // Handle chain changes
   const handleChainChanged = useCallback(() => {
+    console.log("Chain changed, reloading page");
     // Reload the page when the chain changes
     window.location.reload();
   }, []);
@@ -97,11 +102,13 @@ const usePhantomWallet = () => {
       // Switch to Base network
       await switchToBaseNetwork();
       
+      console.log("Requesting account access");
       // Request accounts access
       const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts'
       });
       
+      console.log("Accounts granted:", accounts);
       if (accounts.length > 0) {
         setWallet(prev => ({
           ...prev,
@@ -123,27 +130,42 @@ const usePhantomWallet = () => {
   // Switch to Base network
   const switchToBaseNetwork = async () => {
     try {
+      console.log("Attempting to switch to Base network");
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: '0x2105' }], // Base chainId
       });
+      console.log("Successfully switched to Base network");
+      
+      // Verify current network
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      console.log("Current chainId after switch:", chainId);
     } catch (error) {
+      console.warn("Error during network switch:", error.code, error.message);
+      
       // If the chain is not added to Phantom
       if (error.code === 4902) {
-        await window.ethereum.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: '0x2105',
-            chainName: 'Base',
-            nativeCurrency: {
-              name: 'ETH',
-              symbol: 'ETH',
-              decimals: 18,
-            },
-            rpcUrls: ['https://mainnet.base.org'],
-            blockExplorerUrls: ['https://basescan.org'],
-          }],
-        });
+        console.log("Base network not found, attempting to add it");
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0x2105',
+              chainName: 'Base',
+              nativeCurrency: {
+                name: 'ETH',
+                symbol: 'ETH',
+                decimals: 18,
+              },
+              rpcUrls: ['https://mainnet.base.org'],
+              blockExplorerUrls: ['https://basescan.org'],
+            }],
+          });
+          console.log("Base network added successfully");
+        } catch (addError) {
+          console.error("Failed to add Base network:", addError);
+          throw addError;
+        }
       } else {
         throw error;
       }
@@ -152,6 +174,7 @@ const usePhantomWallet = () => {
   
   // Disconnect wallet (just for UI state - doesn't actually disconnect)
   const disconnect = useCallback(() => {
+    console.log("Disconnecting wallet from UI");
     setWallet(prev => ({
       ...prev,
       address: '',

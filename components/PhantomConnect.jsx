@@ -12,20 +12,22 @@ function PhantomConnect({ onConnect }) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [debugInfo, setDebugInfo] = useState({});
   
   // Check if Phantom is available
   const checkForPhantom = () => {
     // Specifically look for Phantom wallet
-    if (window.phantom && window.phantom.ethereum) {
-      return true;
-    }
+    const phantomDetected = !!(window.phantom && window.phantom.ethereum);
+    const ethereumIsPhantom = !!(window.ethereum && window.ethereum.isPhantom);
     
-    // Check if window.ethereum is Phantom
-    if (window.ethereum && window.ethereum.isPhantom) {
-      return true;
-    }
+    console.log("Phantom detection:", {
+      phantomDetected,
+      ethereumIsPhantom,
+      windowPhantom: !!window.phantom,
+      windowEthereum: !!window.ethereum
+    });
     
-    return false;
+    return phantomDetected || ethereumIsPhantom;
   };
   
   // Initialize on component mount
@@ -39,19 +41,36 @@ function PhantomConnect({ onConnect }) {
             ? window.phantom.ethereum 
             : window.ethereum;
           
+          console.log("Using provider:", provider ? "Available" : "Not available");
+          
           const accounts = await provider.request({ 
             method: 'eth_accounts' 
           });
           
+          console.log("Existing accounts:", accounts);
+          
           if (accounts.length > 0) {
             handleAccountsChanged(accounts);
+          }
+          
+          // Get current chain ID for debugging
+          try {
+            const chainId = await provider.request({ method: 'eth_chainId' });
+            setDebugInfo(prev => ({ ...prev, chainId }));
+            console.log("Current chainId:", chainId);
+          } catch (chainError) {
+            console.warn("Couldn't get chain ID:", chainError);
           }
           
           // Listen for account changes
           provider.on('accountsChanged', handleAccountsChanged);
         } catch (err) {
           console.error('Error checking connection:', err);
+          setDebugInfo(prev => ({ ...prev, initError: err.message }));
         }
+      } else {
+        console.log("Phantom wallet not detected");
+        setDebugInfo(prev => ({ ...prev, phantomDetected: false }));
       }
     };
     
@@ -77,6 +96,8 @@ function PhantomConnect({ onConnect }) {
   
   // Handle account changes
   const handleAccountsChanged = (accounts) => {
+    console.log("Accounts changed:", accounts);
+    
     if (accounts.length === 0) {
       setWalletAddress('');
     } else {
@@ -180,39 +201,71 @@ function PhantomConnect({ onConnect }) {
     document.body.appendChild(overlay);
     
     try {
+      console.log("Starting wallet connection process");
+      
       // Use phantom-specific provider
       const provider = window.phantom 
         ? window.phantom.ethereum 
         : window.ethereum;
       
+      console.log("Provider type:", provider ? 
+        (window.phantom ? "phantom.ethereum" : "window.ethereum") : "No provider");
+      
       // Ensure Base network is set
       try {
         // Try to switch to Base network
+        console.log("Attempting to switch to Base network (chainId: 0x2105)");
         await provider.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: '0x2105' }], // Base Mainnet
         });
-      } catch (error) {
-        // If the chain is not added, add it
-        if (error.code === 4902) {
-          await provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: '0x2105',
-              chainName: 'Base',
-              nativeCurrency: {
-                name: 'ETH',
-                symbol: 'ETH',
-                decimals: 18,
-              },
-              rpcUrls: ['https://mainnet.base.org'],
-              blockExplorerUrls: ['https://basescan.org'],
-            }],
-          });
-        } else {
-          console.warn("Network switching error:", error.message);
-          // Continue anyway
+        console.log("Successfully switched to Base network");
+        
+        // Verify current network
+        try {
+          const chainId = await provider.request({ method: 'eth_chainId' });
+          console.log("Current chainId after switch:", chainId);
+          setDebugInfo(prev => ({ ...prev, chainIdAfterSwitch: chainId }));
+        } catch (verifyError) {
+          console.warn("Couldn't verify chain ID:", verifyError);
         }
+      } catch (error) {
+        console.warn("Error during network switch:", error.code, error.message);
+        setDebugInfo(prev => ({ 
+          ...prev, 
+          networkSwitchError: { code: error.code, message: error.message } 
+        }));
+        
+        // If the chain is not added to Phantom
+        if (error.code === 4902) {
+          console.log("Base network not found, attempting to add it");
+          try {
+            await provider.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: '0x2105',
+                chainName: 'Base',
+                nativeCurrency: {
+                  name: 'ETH',
+                  symbol: 'ETH',
+                  decimals: 18,
+                },
+                rpcUrls: ['https://mainnet.base.org'],
+                blockExplorerUrls: ['https://basescan.org'],
+              }],
+            });
+            console.log("Base network added successfully");
+          } catch (addError) {
+            console.error("Failed to add Base network:", addError);
+            setDebugInfo(prev => ({ 
+              ...prev, 
+              addNetworkError: { code: addError.code, message: addError.message } 
+            }));
+            // Continue anyway, don't throw
+          }
+        }
+        // Continue even if network switching fails
+        console.log("Continuing with connection despite network switch issue");
       }
       
       // Add a special style tag to override any iframe styles
@@ -234,14 +287,17 @@ function PhantomConnect({ onConnect }) {
       document.head.appendChild(iframeStyle);
       
       // Request accounts access
+      console.log("Requesting eth_requestAccounts");
       const accounts = await provider.request({
         method: 'eth_requestAccounts'
       });
       
+      console.log("Accounts approved:", accounts);
       handleAccountsChanged(accounts);
     } catch (err) {
       console.error('Connection error:', err);
       setError(err.message || 'Error connecting to wallet');
+      setDebugInfo(prev => ({ ...prev, connectionError: err.message }));
       setShowModal(false);
       
       // Remove the overlay and classes on error
@@ -354,7 +410,27 @@ function PhantomConnect({ onConnect }) {
             height: '40px',
             animation: 'spin 1s linear infinite'
           }
-        })
+        }),
+        
+        // Add debug section 
+        Object.keys(debugInfo).length > 0 && React.createElement('div', {
+          key: 'debug',
+          style: {
+            marginTop: '20px',
+            padding: '10px',
+            backgroundColor: '#121221',
+            borderRadius: '8px',
+            fontSize: '12px',
+            wordBreak: 'break-word'
+          }
+        }, [
+          React.createElement('p', { key: 'debug-title', style: { marginTop: 0 } }, 'Debug Info:'),
+          ...Object.entries(debugInfo).map(([key, value]) => 
+            React.createElement('p', { key, style: { margin: '5px 0' } }, 
+              `${key}: ${typeof value === 'object' ? JSON.stringify(value) : value}`
+            )
+          )
+        ])
       ])
     );
   };
@@ -407,7 +483,27 @@ function PhantomConnect({ onConnect }) {
             fontSize: '14px',
             textAlign: 'center'
           }
-        }, error)
+        }, error),
+        
+        // Debug information area (for development)
+        process.env.NODE_ENV !== 'production' && React.createElement('div', {
+          key: 'debug-status',
+          style: {
+            marginTop: '15px',
+            fontSize: '12px',
+            padding: '10px',
+            backgroundColor: '#121221',
+            borderRadius: '8px',
+            textAlign: 'left'
+          }
+        }, [
+          React.createElement('p', { key: 'phantom-status' }, 
+            `Phantom detected: ${checkForPhantom() ? 'Yes' : 'No'}`
+          ),
+          React.createElement('p', { key: 'wallet-type' },
+            `Provider: ${window.phantom ? 'window.phantom' : (window.ethereum ? 'window.ethereum' : 'none')}`
+          )
+        ])
       ]),
       renderModal()
     ]);

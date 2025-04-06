@@ -49,8 +49,16 @@ function useTokenBalance(
       setTokenInfo(prev => ({ ...prev, isLoading: true, error: null }));
       
       try {
+        console.log("Checking token balance for address:", walletAddress);
+        
+        // Initialize with defaults in case contract calls fail
+        let decimals = 18; // ERC-20 standard default
+        let symbol = 'AIKIRA';
+        let balance = BigInt(0);
+        
         // Connect to provider using window.ethereum
         const provider = new BrowserProvider(window.ethereum);
+        console.log("Provider connected:", !!provider);
         
         // Create contract instance
         const tokenContract = new Contract(
@@ -58,21 +66,43 @@ function useTokenBalance(
           ERC20_ABI,
           provider
         );
+        console.log("Contract instance created for address:", tokenAddress);
         
-        // Get token decimals
-        const decimals = await tokenContract.decimals();
+        // Try to get decimals with fallback
+        try {
+          decimals = await tokenContract.decimals();
+          console.log("Token decimals:", decimals);
+        } catch (decimalError) {
+          console.warn("Failed to get decimals, using default (18):", decimalError.message);
+          // Continue with default decimals
+        }
         
-        // Get token symbol
-        const symbol = await tokenContract.symbol();
+        // Try to get symbol with fallback
+        try {
+          symbol = await tokenContract.symbol();
+          console.log("Token symbol:", symbol);
+        } catch (symbolError) {
+          console.warn("Failed to get symbol, using default (AIKIRA):", symbolError.message);
+          // Continue with default symbol
+        }
         
-        // Get raw balance
-        const balance = await tokenContract.balanceOf(walletAddress);
+        // Try to get balance
+        try {
+          balance = await tokenContract.balanceOf(walletAddress);
+          console.log("Raw balance:", balance.toString());
+        } catch (balanceError) {
+          console.error("Failed to get balance:", balanceError.message);
+          // Continue with zero balance
+        }
         
         // Format balance with proper decimals
         const formattedBalance = formatUnits(balance, decimals);
+        console.log("Formatted balance:", formattedBalance);
         
         // Check if user has enough tokens
         const hasEnoughTokens = parseFloat(formattedBalance) >= requiredAmount;
+        console.log("Has enough tokens:", hasEnoughTokens, 
+                    `(${formattedBalance} >= ${requiredAmount})`);
         
         setTokenInfo({
           balance,
