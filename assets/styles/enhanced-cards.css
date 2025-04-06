@@ -18,16 +18,17 @@
   
   /* Enhanced Proposal Card */
   .proposal-card {
-    background-color: #1a1a2e !important;
+    background-color: #1a1a2e;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     padding: 20px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.4s ease;
     position: relative;
     overflow: hidden;
     border: 1px solid rgba(217, 194, 240, 0.1);
     z-index: 1;
-    color: #f0f0f0 !important;
+    color: #f0f0f0;
   }
   
   /* Make all text in cards visible on dark background */
@@ -39,145 +40,94 @@
   .card-header,
   .card-footer,
   .submitter-info {
-    color: #f0f0f0 !important;
+    color: #f0f0f0;
   }
   
-  /* Hover Animation */
+  /* Hover Animation - FIXED to avoid disappearing */
   .proposal-card:hover {
-    transform: translateY(-8px) scale(1.02);
+    transform: translateY(-8px);
     box-shadow: 0 15px 30px rgba(185, 160, 220, 0.3);
-    animation: outline-pulse 2s infinite;
   }
   
-  /* Category-based glowing backgrounds for proposal cards */
-  /* Grants - Blue */
-  .proposal-card:has(.proposal-tag:contains("Grants"))::before {
+  /* Category-based glow backgrounds using ::after instead of ::before */
+  .proposal-card::after {
     content: '';
     position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    background: radial-gradient(
-        circle at 50% 50%, 
-        var(--pastel-blue) 0%, 
-        transparent 70%
-    );
-    opacity: 0.3;
-    z-index: -1;
-    filter: blur(20px);
-    transition: opacity 0.5s ease;
-  }
-  
-  .proposal-card:has(.proposal-tag:contains("Grants")):hover::before {
-    opacity: 0.5;
-  }
-  
-  /* Rewards - Turquoise */
-  .proposal-card:has(.proposal-tag:contains("Rewards"))::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    background: radial-gradient(
-        circle at 50% 50%, 
-        var(--pastel-turquoise) 0%, 
-        transparent 70%
-    );
-    opacity: 0.3;
-    z-index: -1;
-    filter: blur(20px);
-    transition: opacity 0.5s ease;
-  }
-  
-  .proposal-card:has(.proposal-tag:contains("Rewards")):hover::before {
-    opacity: 0.5;
-  }
-  
-  /* Trading - Pink */
-  .proposal-card:has(.proposal-tag:contains("Trading"))::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    background: radial-gradient(
-        circle at 50% 50%, 
-        var(--pastel-pink) 0%, 
-        transparent 70%
-    );
-    opacity: 0.3;
-    z-index: -1;
-    filter: blur(20px);
-    transition: opacity 0.5s ease;
-  }
-  
-  .proposal-card:has(.proposal-tag:contains("Trading")):hover::before {
-    opacity: 0.5;
-  }
-  
-  /* Marketing - Orange */
-  .proposal-card:has(.proposal-tag:contains("Marketing"))::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    background: radial-gradient(
-        circle at 50% 50%, 
-        #f0d0a0 0%, 
-        transparent 70%
-    );
-    opacity: 0.3;
-    z-index: -1;
-    filter: blur(20px);
-    transition: opacity 0.5s ease;
-  }
-  
-  .proposal-card:has(.proposal-tag:contains("Marketing")):hover::before {
-    opacity: 0.5;
-  }
-  
-  /* Other - Purple */
-  .proposal-card:has(.proposal-tag:contains("Other"))::before {
-    content: '';
-    position: absolute;
-    top: -20px;
-    left: -20px;
-    right: -20px;
-    bottom: -20px;
-    background: radial-gradient(
-        circle at 50% 50%, 
-        var(--pastel-purple) 0%, 
-        transparent 70%
-    );
-    opacity: 0.3;
-    z-index: -1;
-    filter: blur(20px);
-    transition: opacity 0.5s ease;
-  }
-  
-  .proposal-card:has(.proposal-tag:contains("Other")):hover::before {
-    opacity: 0.5;
-  }
-  
-  /* Status-based colors (these take precedence over tag-based colors) */
-  .proposal-card.approved::before {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: radial-gradient(
       circle at 50% 50%, 
-      var(--pastel-turquoise) 0%, 
+      rgba(194, 212, 240, 0.3) 0%, /* Default blue */
+      transparent 70%
+    );
+    opacity: 0.3;
+    z-index: -1;
+    filter: blur(20px);
+    transition: opacity 0.5s ease;
+    border-radius: 16px;
+  }
+  
+  /* Prevent the hover animation from changing the ::after position */
+  .proposal-card:hover::after {
+    opacity: 0.5;
+  }
+  
+  /* Fixed selectors for category-specific colors */
+  .proposal-card[data-tag="Grants"]::after {
+    background: radial-gradient(
+      circle at 50% 50%, 
+      rgba(194, 212, 240, 0.5) 0%, /* Blue */
       transparent 70%
     );
   }
   
-  .proposal-card.rejected::before {
+  .proposal-card[data-tag="Rewards"]::after {
     background: radial-gradient(
       circle at 50% 50%, 
-      var(--pastel-pink) 0%, 
+      rgba(194, 240, 230, 0.5) 0%, /* Turquoise */
+      transparent 70%
+    );
+  }
+  
+  .proposal-card[data-tag="Trading"]::after {
+    background: radial-gradient(
+      circle at 50% 50%, 
+      rgba(247, 209, 228, 0.5) 0%, /* Pink */
+      transparent 70%
+    );
+  }
+  
+  .proposal-card[data-tag="Marketing"]::after {
+    background: radial-gradient(
+      circle at 50% 50%, 
+      rgba(240, 208, 160, 0.5) 0%, /* Orange */
+      transparent 70%
+    );
+  }
+  
+  .proposal-card[data-tag="Other"]::after {
+    background: radial-gradient(
+      circle at 50% 50%, 
+      rgba(217, 194, 240, 0.5) 0%, /* Purple */
+      transparent 70%
+    );
+  }
+  
+  /* Status-based colors (these take precedence over tag-based colors) */
+  .proposal-card.approved::after {
+    background: radial-gradient(
+      circle at 50% 50%, 
+      rgba(194, 240, 230, 0.5) 0%, /* Turquoise */
+      transparent 70%
+    );
+  }
+  
+  .proposal-card.rejected::after {
+    background: radial-gradient(
+      circle at 50% 50%, 
+      rgba(247, 209, 228, 0.5) 0%, /* Pink */
       transparent 70%
     );
   }
@@ -203,27 +153,41 @@
   }
   
   /* Tag colors by category */
+  .proposal-tag {
+    background-color: var(--pastel-purple);
+    color: #121221;
+  }
+  
   .proposal-tag:contains("Grants") {
     background-color: var(--pastel-blue);
     color: #121221;
   }
   
-  .proposal-tag:contains("Rewards") {
+  .proposal-tag[data-category="Grants"] {
+    background-color: var(--pastel-blue);
+    color: #121221;
+  }
+  
+  .proposal-tag:contains("Rewards"),
+  .proposal-tag[data-category="Rewards"] {
     background-color: var(--pastel-turquoise);
     color: #121221;
   }
   
-  .proposal-tag:contains("Trading") {
+  .proposal-tag:contains("Trading"),
+  .proposal-tag[data-category="Trading"] {
     background-color: var(--pastel-pink);
     color: #121221;
   }
   
-  .proposal-tag:contains("Marketing") {
+  .proposal-tag:contains("Marketing"),
+  .proposal-tag[data-category="Marketing"] {
     background-color: #f0d0a0;
     color: #121221;
   }
   
-  .proposal-tag:contains("Other") {
+  .proposal-tag:contains("Other"),
+  .proposal-tag[data-category="Other"] {
     background-color: var(--pastel-purple);
     color: #121221;
   }
@@ -231,7 +195,7 @@
   /* Date styling */
   .submission-date {
     font-size: 12px;
-    color: #c0c0d0 !important;
+    color: #c0c0d0;
     font-style: italic;
   }
   
@@ -240,7 +204,7 @@
     font-size: 15px;
     line-height: 1.6;
     margin-bottom: 20px;
-    color: #f0f0f0 !important;
+    color: #f0f0f0;
     min-height: 80px;
     display: flex;
     flex-direction: column;
@@ -263,7 +227,7 @@
     align-items: center;
     gap: 8px;
     font-size: 13px;
-    color: #c0c0d0 !important;
+    color: #c0c0d0;
     opacity: 0.8;
   }
   
@@ -308,8 +272,8 @@
   }
   
   .vote-button {
-    background: none;
-    border: none;
+    background: rgba(26, 26, 46, 0.4);
+    border: 1px solid rgba(220, 220, 240, 0.1);
     display: flex;
     align-items: center;
     gap: 5px;
@@ -318,7 +282,7 @@
     cursor: pointer;
     transition: all 0.2s ease;
     font-size: 13px;
-    color: #f0f0f0 !important;
+    color: #f0f0f0;
     position: relative;
     overflow: hidden;
   }
@@ -348,7 +312,7 @@
   }
   
   .vote-button.upvote.active {
-    color: #4CAF50 !important;
+    color: #4CAF50;
   }
   
   .vote-button.upvote.active::before {
@@ -358,7 +322,7 @@
   }
   
   .vote-button.downvote.active {
-    color: #F44336 !important;
+    color: #F44336;
   }
   
   .vote-button.downvote.active::before {
@@ -380,7 +344,7 @@
     font-weight: 600;
     min-width: 24px;
     text-align: center;
-    color: #f0f0f0 !important;
+    color: #f0f0f0;
   }
   
   /* Animation for vote count change */
@@ -392,35 +356,6 @@
   
   .vote-count.changed {
     animation: vote-count-change 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  
-  /* Card appear animation */
-  @keyframes cardAppear {
-    from { 
-      opacity: 0; 
-      transform: translateY(20px);
-    }
-    to { 
-      opacity: 1; 
-      transform: translateY(0);
-    }
-  }
-  
-  .proposal-card {
-    animation: cardAppear 0.5s ease forwards;
-  }
-  
-  /* Stagger the animation for each card */
-  .proposal-card:nth-child(2n) {
-    animation-delay: 0.1s;
-  }
-  
-  .proposal-card:nth-child(3n) {
-    animation-delay: 0.2s;
-  }
-  
-  .proposal-card:nth-child(4n) {
-    animation-delay: 0.3s;
   }
   
   /* Improved card shadows */
@@ -452,7 +387,7 @@
     }
   }
   
-  .proposal-card:hover::before {
+  .proposal-card:hover::after {
     animation: pulse-glow 2s infinite alternate;
   }
   
@@ -465,6 +400,28 @@
     margin: 20px 0;
   }
   
+  /* Tag filter buttons - FIXED STYLING */
+  .tag-filter {
+    background-color: rgba(26, 26, 46, 0.6);
+    border: 1px solid rgba(217, 194, 240, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: #f0f0f0;
+    font-weight: 600;
+  }
+  
+  .tag-filter.active,
+  .tag-filter:hover {
+    background: linear-gradient(135deg, var(--pastel-purple), var(--pastel-blue));
+    color: #121221;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(194, 212, 240, 0.5);
+    font-weight: 700;
+  }
+  
   /* Error and empty states */
   .no-proposals {
     text-align: center;
@@ -472,7 +429,7 @@
     background: rgba(26, 26, 46, 0.7);
     border-radius: 16px;
     margin-top: 20px;
-    color: #f0f0f0 !important;
+    color: #f0f0f0;
   }
   
   /* Glowing purple outlines for containers */

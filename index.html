@@ -110,7 +110,7 @@
   </div>
   
   <!-- System container with loader -->
-  <div id="aikira-proposal-system">
+  <div style="margin-top: 40px;" id="aikira-proposal-system">
     <div class="app-loader">
       <div class="loader-spinner"></div>
       <p>Loading proposal system...</p>
@@ -143,12 +143,6 @@
     // Log initial page load
     window.addEventListener('DOMContentLoaded', () => {
       logDebug('DOM loaded');
-      
-      // Hide proposal system initially
-      const systemEl = document.getElementById('aikira-proposal-system');
-      if (systemEl) {
-        systemEl.style.display = 'none';
-      }
     });
     
     // Log script loading events

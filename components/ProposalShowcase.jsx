@@ -107,7 +107,8 @@ const ProposalShowcase = ({ proposals = [], onTagFilter, onVote }) => {
         React.createElement('button', {
           key: tag,
           className: `tag-filter ${activeTag === tag ? 'active' : ''}`,
-          onClick: () => handleTagSelect(tag)
+          onClick: () => handleTagSelect(tag),
+          'data-category': tag // Add data-category attribute for CSS targeting
         }, tag)
       )
     ),
