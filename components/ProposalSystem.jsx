@@ -166,9 +166,21 @@ function ProposalSystem() {
   const renderContent = () => {
     // If not connected to wallet
     if (!walletAddress && !DEV_MODE) {
-      return React.createElement('div', { className: 'connection-required' }, [
-        React.createElement('h2', { key: 'title' }, 'Connect Wallet to Submit Proposals'),
-        React.createElement('p', { key: 'info' }, 'Ownership of $AIKIRA tokens is required to participate.'),
+      return React.createElement('div', { 
+        className: 'connection-required dark-theme-container'
+      }, [
+        React.createElement('h2', { 
+          key: 'title',
+          style: {
+            color: '#f0f0f0',
+            marginBottom: '15px'
+          }
+        }, 'Connect Wallet to Submit Proposals'),
+        
+        React.createElement('p', { 
+          key: 'info',
+          style: { color: '#f0f0f0' }
+        }, 'Ownership of $AIKIRA tokens is required to participate.'),
         
         React.createElement(PhantomConnect, {
           key: 'connect',

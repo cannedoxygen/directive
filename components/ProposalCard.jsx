@@ -131,11 +131,16 @@ const ProposalCard = ({ proposal = {}, onVote }) => {
   }
   
   return React.createElement('div', { 
-    className: `proposal-card ${safeProposal.status || 'pending'}`
+    className: `proposal-card ${safeProposal.status || 'pending'}`,
+    'data-tag': safeProposal.tag || 'Other' // Add data-tag attribute for CSS targeting
   }, [
     // Card Header
     React.createElement('div', { key: 'header', className: 'card-header' }, [
-      React.createElement('span', { key: 'tag', className: 'proposal-tag' }, safeProposal.tag || 'Uncategorized'),
+      React.createElement('span', { 
+        key: 'tag', 
+        className: 'proposal-tag',
+        'data-category': safeProposal.tag || 'Other' // Add data-category attribute to tag as well
+      }, safeProposal.tag || 'Uncategorized'),
       React.createElement('span', { key: 'date', className: 'submission-date' }, formatDate(safeProposal.timestamp))
     ]),
     

@@ -72,15 +72,22 @@ body {
   box-shadow: 0 6px 20px var(--shadow-color);
 }
 
-/* Connection Required Section */
+/* Connection Required Section - UPDATED */
 .connection-required {
   text-align: center;
   padding: 30px;
   border: 1px solid var(--border-color);
   border-radius: 12px;
   margin: 20px 0;
-  background-color: var(--light-bg);
+  background-color: #1a1a2e !important; /* Force dark background */
+  color: var(--dark-text) !important; /* Force light text */
   box-shadow: 0 0 5px rgba(217, 194, 240, 0.3);
+}
+
+/* Additional rule to ensure text is visible */
+.connection-required h2,
+.connection-required p {
+  color: var(--dark-text) !important;
 }
 
 /* Wallet Container - Fix visibility */
